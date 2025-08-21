@@ -57,7 +57,7 @@ The script displays information in two lines:
 
 Example output:
 ```
-📁 /Users/sascharahn/developer/project
+📁 /Users/john-doe/developer/project
 ⎇ git branch main • ✅ Logged-In • ＄ API free • 🧠 LLM Opus 4.1 • 🔋 Tokens 103,438/200,000 • ⏱️ Time left 2h 43m
 ```
 
