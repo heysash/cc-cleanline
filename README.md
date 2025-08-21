@@ -1,15 +1,18 @@
 # Claude Code Status Line Script
 
-A customizable status line script for Claude Code that displays workspace information, git status, model information, and session metrics in a clean, colored format.
+A professional status line script for Claude Code that displays comprehensive workspace information, git status, model details, and real-time usage metrics with beautiful color-coded formatting.
 
 ## Features
 
-- **Workspace Information**: Shows current directory name
-- **Git Integration**: Displays current git branch (if in a git repository)
-- **Login Status**: Shows connection status to Claude services
-- **Model Information**: Displays the currently active model
-- **Token Usage**: Tracks token consumption and limits *(currently placeholder)*
-- **Session Time**: Shows remaining session time *(currently placeholder)*
+- **📁 Workspace Information**: Shows full directory path
+- **⎇ Git Integration**: Displays current git branch or "No git" status
+- **✅/⛔️ Login Status**: Dynamic connection status to Claude services
+- **＄ API Status**: Shows API availability (free/fee-based)
+- **🤖/🧠 Model Information**: Model-specific icons (Robot for Sonnet, Brain for Opus)
+- **🔋/🪫 Token Usage**: Real-time token tracking with ccusage integration
+  - Battery icon changes to low battery when >80% usage
+  - Thousands separator for better readability
+- **⏱️ Session Time**: Actual remaining time in current 5-hour block
 
 ## Installation
 
@@ -46,34 +49,48 @@ The script automatically detects:
 - Git repository status and branch
 - Model information from Claude Code
 
-## Usage
+## Output Format
 
-The script reads JSON input from stdin containing workspace and session information from Claude Code. It outputs a formatted status line with color-coded information:
+The script displays information in two lines:
+1. **First line**: Full directory path
+2. **Second line**: All status information separated by bullet points
 
+Example output:
 ```
-project-name git:main logged-in Model-Name 103,438/200,000 2h 43m left
+📁 /Users/sascharahn/developer/project
+⎇ git branch main • ✅ Logged-In • ＄ API free • 🧠 LLM Opus 4.1 • 🔋 Tokens 103,438/200,000 • ⏱️ Time left 2h 43m
 ```
 
 ### Color Scheme
 
-- **Cyan (dim)**: Directory name
-- **Green**: Git branch, login status
-- **Blue (dim)**: Model name
-- **Yellow**: Token usage
-- **Magenta**: Remaining time
+- **SlateGray** (112,128,144): Directory path
+- **CornflowerBlue** (100,149,237): Git branch
+- **PaleGreen** (152,251,152): Logged-in status
+- **Salmon** (250,128,114): Logged-out status  
+- **DarkTurquoise** (0,206,209): API status
+- **MediumOrchid** (186,85,211): Model name
+- **Sienna** (160,82,45): Token usage
+- **PaleTurquoise** (175,238,238): Remaining time
 
-## Limitations
+## Token and Time Tracking
 
-- Token usage counter is currently a placeholder value
-- Remaining session time is currently a placeholder value
-- These metrics will be implemented when Claude Code provides the necessary API endpoints
+The script integrates with [ccusage](https://github.com/ryoppippi/ccusage) to provide real-time token consumption and remaining time data:
+
+- **Automatic detection**: Uses `bunx ccusage@latest` if available
+- **5-hour block tracking**: Shows tokens used and remaining in current block
+- **Smart fallbacks**: Displays default values if ccusage is unavailable
+- **No installation required**: Runs ccusage on-demand via bunx
 
 ## Requirements
 
+### Required
 - Bash shell
 - `jq` for JSON parsing
-- `git` (optional, for git branch detection)
 - Claude Code CLI
+
+### Optional
+- `git` for branch detection
+- `bunx` (or `npx`) for real-time token/time tracking via ccusage
 
 ## Author
 
