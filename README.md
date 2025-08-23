@@ -1,37 +1,43 @@
-# Claude Code Status Line Script
+# CC CleanLine - Clean Claude Code Status Line
 
-A professional status line script for Claude Code that displays comprehensive workspace information, git status, model details, session time, and context window monitoring with beautiful color-coded formatting.
+A clean, minimalist status line script for Claude Code that embodies the clean code philosophy - clear, readable, purposeful. Designed for developers who value distraction-free, professional status information.
+
+## Philosophy
+
+CC CleanLine follows the clean code philosophy: **every element serves a purpose, nothing is superfluous**. No decorative clutter, no visual noise - just the essential information you need, presented clearly and professionally.
+
+This isn't just about looking good (though it does) - it's about cognitive clarity. When your status line is clean and purposeful, your mind stays focused on what matters: your code.
 
 ## Features
 
-- **Directory Information**: Shows full directory path with git status
-- **● Git Integration**: Active git branch or ○ no git repository status  
-- **● Login Status**: Dynamic connection status (● Logged-In / ○ Logged-Out)
-- **☆/★ Model Information**: Model-specific icons and colors
-  - ☆ Sonnet 4 in saddlebrown
-  - ★ Opus 4.1 in sandybrown
-- **✓/⚠ Context Window**: Real-time context window monitoring
-  - ✓ Context window ok (green)
-  - ⚠ Context window exceeded! Do /compress (red)
-- **⏱ Session Time**: Remaining time in current session block
-- **⚡ API Cost**: Real-time cost tracking with ccusage integration
-- **🎨 Customizable Configuration**: Full customization via configuration file
+🧹 **Clean & Minimalist** - Zero visual clutter, maximum information clarity  
+⚙️ **Configurable** - Fully customizable via `statusline.config.sh`  
+🔮 **Future-Proof** - Designed for extensibility and layout variations  
+🧠 **Intelligent** - Smart context monitoring and real-time cost tracking  
+🎯 **Focused** - 3-line output: Git + Directory / Login + Model + Time / Context + Cost  
+🌈 **Color-Coded** - Model-specific colors (Sonnet=saddlebrown, Opus=sandybrown)  
+📊 **Cost Tracking** - Real-time session costs via ccusage integration  
+🔄 **Git Integration** - Branch detection with clean status indicators  
+⚡ **Context Monitoring** - Built-in `exceeds_200k_tokens` flag support  
 
 ## Installation
 
-1. Clone or download this repository
-2. Make the script executable:
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/heysash/cc-cleanline.git
+   cd cc-cleanline
+   ```
+
+2. Make executable:
    ```bash
    chmod +x claude-code-statusline.sh
    ```
-3. The script will automatically use the default configuration. For custom settings, see the **Configuration** section below.
-4. Configure Claude Code to use this script by adding the following to your settings file
+
+3. Configure Claude Code (see Configuration section)
 
 ## Configuration
 
 ### Claude Code Settings
-
-Add the following configuration to your Claude Code settings file:
 
 **macOS**: `~/.claude/settings.json`
 
@@ -39,123 +45,78 @@ Add the following configuration to your Claude Code settings file:
 {
   "statusLine": {
     "type": "command",
-    "command": "bash /[PATH-TO-SCRIPT]/claude-code-statusline.sh"
+    "command": "bash /path/to/cc-cleanline/claude-code-statusline.sh"
   }
 }
 ```
 
-Replace `[PATH-TO-SCRIPT]` with the actual path to where you saved the script.
+### Customization
 
-### Customization via Configuration File
+CC CleanLine uses `statusline.config.sh` for complete customization:
 
-The script includes a comprehensive configuration system via `statusline.config.sh`. This file allows you to customize:
+- **Colors**: Status states, model colors, UI elements
+- **Icons**: Status indicators (●, ○, ⚠, ✓)  
+- **Labels**: Login status, context messages, model names
 
-#### Colors
-- **Status Colors**: Active/inactive/critical states
-- **Model Colors**: Different colors for Opus and Sonnet models  
-- **UI Colors**: Text colors and theme elements
-
-#### Icons
-- Status indicators (●, ○, ⚠, ✓)
-- Custom icons for different states
-
-#### Labels
-- Text labels for login status
-- Context window messages
-- Model display names
-
-#### Example Configuration
+**Example customization:**
 ```bash
-# Custom colors (using 256-color codes)
+# Clean, professional colors
 COLOR_ACTIVE_STATUS='\033[38;5;34m'     # Green
-COLOR_OPUS='\033[38;5;215m'             # Sandybrown
+COLOR_OPUS='\033[38;5;215m'             # Sandybrown  
 COLOR_SONNET='\033[38;5;130m'           # Saddlebrown
 
-# Custom labels  
+# Custom labels
 LABEL_LOGGED_IN="Connected"
 LABEL_MODEL="Model"
 ```
 
-The configuration file (`statusline.config.sh`) must be in the same directory as the main script. The script will automatically detect and load it.
+## Output Examples
 
-### Auto-Detection Features
-
-The script automatically detects:
-- Current working directory
-- Git repository status and branch
-- Model information from Claude Code
-
-## Output Format
-
-The script displays information in three lines:
-1. **First line**: Git status and full directory path
-2. **Second line**: Login status, model information, and session time
-3. **Third line**: Context window status and API cost information
-
-Example output:
+**Active development session:**
 ```
-● git branch main ▶ /Users/john-doe/developer/project
-● Logged-In ☆ LLM Sonnet 4 ⏱ Session time left 2h 43m
+● git branch main ▶ /Users/dev/projects/app
+● Logged-In ☆ LLM Sonnet 4 ⏱ Session time left 2h 43m  
 ✓ Context window ok ⚡ API $0 (normally $2.50)
 ```
 
-**Alternative states:**
+**Outside git repo:**
 ```
-○ no git repository ▶ /tmp/test-folder
+○ no git repository ▶ /tmp/scratch
 ○ Logged-Out ★ LLM Opus 4.1 ⏱ Session time left 1h 15m
-⚠ Context window exceeded! Do /compress ⚡ API $0 (normally $3.80)
+⚠ Context window exceeded! Do /compress ⚡ API $3.80 (current session)
 ```
 
-### Default Color Scheme
+### Clean Color Scheme
 
-The script uses a clean, modern color palette:
-
-- **Green** (256-color 34): All active status indicators
-  - ● git branch (when in repository)
-  - ● Logged-In
-  - ✓ Context window ok
-- **Red** (256-color 196): All inactive/critical status indicators
-  - ○ no git repository
-  - ○ Not logged in  
-  - ⚠ Context window exceeded
-- **Sandybrown** (256-color 215): ★ Opus 4.1 model
-- **Saddlebrown** (256-color 130): ☆ Sonnet 4 model
-- **DarkSlateGray** (#2F4F4F): Directory paths, session time, API cost text
-
-All colors can be customized via the `statusline.config.sh` configuration file.
-
-## Context Window & Session Tracking
-
-The script provides real-time monitoring of your Claude Code session:
-
-### Context Window Monitoring
-- **Built-in detection**: Uses Claude Code's `exceeds_200k_tokens` flag
-- **Visual indicators**: ✓ for OK, ⚠ for exceeded with compress recommendation
-- **Color coding**: Green for safe, red for exceeded
-
-### Session Time & Cost Tracking
-- **ccusage integration**: Uses [ccusage](https://github.com/ryoppippi/ccusage) for real-time data
-- **Automatic detection**: Uses `bunx ccusage@latest` if available
-- **Session time**: Shows remaining time in current session block
-- **Cost tracking**: Displays current session cost vs. normal pricing
-- **Smart fallbacks**: Shows default values if ccusage is unavailable
-- **No installation required**: Runs ccusage on-demand via bunx
+- **Green** (active states): git branch, logged in, context OK
+- **Red** (attention states): no git, logged out, context exceeded  
+- **Sandybrown**: ★ Opus 4.1 model
+- **Saddlebrown**: ☆ Sonnet 4 model
+- **DarkSlateGray**: Directory paths, times, costs
 
 ## Requirements
 
 ### Required
 - Bash shell
-- `jq` for JSON parsing
+- `jq` for JSON parsing  
 - Claude Code CLI
 
-### Optional
+### Optional  
 - `git` for branch detection
-- `bunx` (or `npx`) for real-time token/time tracking via ccusage
+- `bunx`/`npx` for ccusage cost tracking
+
+## Technical Details
+
+- **Context Monitoring**: Uses Claude Code's `exceeds_200k_tokens` flag
+- **Cost Tracking**: Integrates with [ccusage](https://github.com/ryoppippi/ccusage) for real-time session costs
+- **Git Integration**: Automatic branch detection and status
+- **Configuration**: Hot-reloadable via `statusline.config.sh`
+- **Output Format**: Consistent 3-line layout for reliable parsing
 
 ## Author
 
-Created by [Sascha Rahn](https://github.com/heysash)
+Created by [Sascha Rahn](https://github.com/heysash) • [heysash.com](https://heysash.com)
 
 ## License
 
-MIT License - feel free to modify and distribute as needed.
+MIT License

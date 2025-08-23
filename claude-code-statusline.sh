@@ -148,10 +148,17 @@ else
     model_color="$COLOR_DEFAULT_MODEL"
 fi
 
+# Determine cost display based on login status
+if [ "$is_logged_in" = true ]; then
+    cost_display="⚡API \$0 (normally \$${current_cost})"
+else
+    cost_display="⚡API \$${current_cost} (current session)"
+fi
+
 # Build the status line
 printf "${git_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}▶ %s${COLOR_RESET}\n" \
     "$git_status" "$dir_path"
 printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
     "$login_status" "$model_info" "$time_left"
-printf "  ${token_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}⚡API \$0 (normally \$${current_cost})${COLOR_RESET}\n" \
-    "$token_status"
+printf "  ${token_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
+    "$token_status" "$cost_display"

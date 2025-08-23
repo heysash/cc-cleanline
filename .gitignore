@@ -1,0 +1,21 @@
+# Temporary files
+*.tmp
+*.log
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Local configuration overrides
+statusline.config.sh.local
+*.local
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+test_*
