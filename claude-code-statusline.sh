@@ -7,9 +7,9 @@ input=$(cat)
 current_dir=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
 session_id=$(echo "$input" | jq -r '.session_id')
-# Try to get context tokens from Claude Code input
-context_tokens_used=$(echo "$input" | jq -r '.tokens_used // 0')
-context_tokens_limit=$(echo "$input" | jq -r '.tokens_limit // 200000')
+
+# Get token status from Claude Code input
+exceeds_200k_tokens=$(echo "$input" | jq -r '.exceeds_200k_tokens // false')
 
 # Colors with RGB values as specified
 SLATE_GRAY='\033[38;2;112;128;144m'     # Ordner: SlateGray
@@ -18,6 +18,7 @@ PALE_GREEN='\033[38;2;152;251;152m'      # Login Status (eingeloggt): PaleGreen
 SALMON='\033[38;2;250;128;114m'          # Login Status (ausgeloggt): Salmon
 MEDIUM_ORCHID='\033[38;2;186;85;211m'    # Model: MediumOrchid
 SIENNA='\033[38;2;160;82;45m'            # Tokens: Sienna
+CRIMSON='\033[38;2;220;20;60m'            # Token status (exceeded): Crimson
 PALE_TURQUOISE='\033[38;2;175;238;238m'  # Zeit: PaleTurquoise
 DARK_TURQUOISE='\033[38;2;0;206;209m'    # API Status: DarkTurquoise
 RESET='\033[0m'
@@ -73,13 +74,22 @@ get_current_cost() {
 
 current_cost=$(get_current_cost)
 
+# Simple token status based on exceeds_200k_tokens flag
+if [ "$exceeds_200k_tokens" = "true" ]; then
+    token_status="❌ Context window exceeded! Do /compress"
+    token_color="$CRIMSON"
+else
+    token_status="✅ Context window ok"
+    token_color="$PALE_GREEN"
+fi
+
 if [ "$is_logged_in" = true ]; then
-    login_status="✅ Logged-In"
+    login_status="🟢 Logged-In"
     api_status="⚡API \$0 (normally \$$current_cost)"
     login_color="$PALE_GREEN"
     api_color="$DARK_TURQUOISE"
 else
-    login_status="⛔️ Logged-Out"
+    login_status="🔴 Logged-Out"
     api_status="⚡API \$$current_cost (today costs)"
     login_color="$SALMON"
     api_color="$DARK_TURQUOISE"
@@ -142,5 +152,5 @@ model_info="${model_icon} LLM ${model_name}"
 # Line 1: Directory only
 # Line 2: All other elements separated by bullet points (without token info)
 printf "${SLATE_GRAY}📁 %s${RESET}\n" "$dir_path"
-printf "${CORNFLOWER_BLUE}%s${RESET} • ${login_color}%s${RESET} • ${api_color}%s${RESET} • ${MEDIUM_ORCHID}%s${RESET} • ${PALE_TURQUOISE}%s${RESET}\n" \
-    "$git_status" "$login_status" "$api_status" "$model_info" "$time_left"
+printf "${CORNFLOWER_BLUE}%s${RESET} • ${login_color}%s${RESET} • ${token_color}%s${RESET} • ${api_color}%s${RESET} • ${MEDIUM_ORCHID}%s${RESET} • ${PALE_TURQUOISE}%s${RESET}\n" \
+    "$git_status" "$login_status" "$token_status" "$api_status" "$model_info" "$time_left"
