@@ -1,3 +1,11 @@
+```
+   ____ ____    ____ _                 _     _            
+  / ___/ ___|  / ___| | ___  __ _ _ __ | |   (_)_ __   ___ 
+ | |  | |     | |   | |/ _ \/ _` | '_ \| |   | | '_ \ / _ \
+ | |__| |___  | |___| |  __/ (_| | | | | |___| | | | |  __/
+  \____\____|  \____|_|\___|\__,_|_| |_|_____|_|_| |_|\___|
+```
+
 # CC CleanLine - Clean Claude Code Status Line
 
 A clean, minimalist status line script for Claude Code that embodies the clean code philosophy - clear, readable, purposeful. Designed for developers who value distraction-free, professional status information.
@@ -30,7 +38,7 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 
 2. Make executable:
    ```bash
-   chmod +x claude-code-statusline.sh
+   chmod +x cc-cleanline.sh
    ```
 
 3. Configure Claude Code (see Configuration section)
@@ -45,7 +53,7 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 {
   "statusLine": {
     "type": "command",
-    "command": "bash /path/to/cc-cleanline/claude-code-statusline.sh"
+    "command": "bash /path/to/cc-cleanline/cc-cleanline.sh"
   }
 }
 ```

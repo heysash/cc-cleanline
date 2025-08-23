@@ -8,7 +8,7 @@
 Thumbs.db
 
 # Local configuration overrides
-statusline.config.sh.local
+cc-cleanline.config.sh.local
 *.local
 
 # Editor files
