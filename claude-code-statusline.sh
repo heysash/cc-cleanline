@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Load configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="${SCRIPT_DIR}/statusline.config.sh"
+
+# Check if config file exists
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo "Error: Configuration file not found at $CONFIG_FILE" >&2
+    exit 1
+fi
+
+# Source the configuration
+source "$CONFIG_FILE"
+
 # Read JSON input from stdin
 input=$(cat)
 
@@ -11,13 +24,6 @@ session_id=$(echo "$input" | jq -r '.session_id')
 # Get token status from Claude Code input
 exceeds_200k_tokens=$(echo "$input" | jq -r '.exceeds_200k_tokens // false')
 
-# Colors (simplified to only forestgreen and firebrick)
-FORESTGREEN='\033[38;2;34;139;34m'   # forestgreen="#228B22" for all active status
-FIREBRICK='\033[38;2;178;34;34m'     # firebrick="#B22222" for all inactive status
-SANDYBROWN='\033[38;2;244;164;96m'   # sandybrown="#F4A460" for Sonnet
-DARKORANGE='\033[38;2;255;140;0m'    # darkorange="#FF8C00" for Opus
-RESET='\033[0m'
-
 # Use full directory path instead of just basename
 dir_path="$current_dir"
 
@@ -25,15 +31,15 @@ dir_path="$current_dir"
 if git rev-parse --git-dir >/dev/null 2>&1; then
     branch=$(git branch --show-current 2>/dev/null)
     if [ -n "$branch" ]; then
-        git_status="● git branch ${branch}"
-        git_color="$FORESTGREEN"
+        git_status="${ICON_ACTIVE} git branch ${branch}"
+        git_color="$COLOR_ACTIVE_STATUS"
     else
-        git_status="○ no git repository"
-        git_color="$FIREBRICK"
+        git_status="${ICON_INACTIVE} no git repository"
+        git_color="$COLOR_INACTIVE_STATUS"
     fi
 else
-    git_status="○ no git repository"
-    git_color="$FIREBRICK"
+    git_status="${ICON_INACTIVE} no git repository"
+    git_color="$COLOR_INACTIVE_STATUS"
 fi
 
 # Check login status by testing if we have a valid session_id
@@ -73,19 +79,19 @@ current_cost=$(get_current_cost)
 
 # Simple token status based on exceeds_200k_tokens flag
 if [ "$exceeds_200k_tokens" = "true" ]; then
-    token_status="⚠ Context window exceeded! Do /compress"
-    token_color="$FIREBRICK"
+    token_status="${ICON_WARNING} ${LABEL_CONTEXT_CRITICAL}! Do /compress"
+    token_color="$COLOR_CRITICAL_STATUS"
 else
-    token_status="✓ Context window ok"
-    token_color="$FORESTGREEN"
+    token_status="${ICON_CHECK} ${LABEL_CONTEXT_OK}"
+    token_color="$COLOR_ACTIVE_STATUS"
 fi
 
 if [ "$is_logged_in" = true ]; then
-    login_status="● Logged-In"
-    login_color="$FORESTGREEN"
+    login_status="${ICON_ACTIVE} ${LABEL_LOGGED_IN}"
+    login_color="$COLOR_ACTIVE_STATUS"
 else
-    login_status="○ Logged-Out"
-    login_color="$FIREBRICK"
+    login_status="${ICON_INACTIVE} ${LABEL_NOT_LOGGED_IN}"
+    login_color="$COLOR_INACTIVE_STATUS"
 fi
 
 # Get remaining time from ccusage
@@ -132,20 +138,20 @@ fi
 
 # Determine model info based on model name
 if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
-    model_info="☆ LLM Sonnet 4"
-    model_color="$SANDYBROWN"
+    model_info="☆ ${LABEL_MODEL} Sonnet 4"
+    model_color="$COLOR_SONNET"
 elif [[ "$model_name" == *"opus"* ]] || [[ "$model_name" == *"Opus"* ]]; then
-    model_info="★ LLM Opus 4.1"
-    model_color="$DARKORANGE"
+    model_info="★ ${LABEL_MODEL} Opus 4.1"
+    model_color="$COLOR_OPUS"
 else
-    model_info="● LLM ${model_name}"
-    model_color=""
+    model_info="${ICON_ACTIVE} ${LABEL_MODEL} ${model_name}"
+    model_color="$COLOR_DEFAULT_MODEL"
 fi
 
-# Build the status line to match the screenshot format
-printf "${git_color}%s${RESET} ▶ %s\n" \
+# Build the status line
+printf "${git_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}▶ %s${COLOR_RESET}\n" \
     "$git_status" "$dir_path"
-printf "${login_color}%s${RESET} ${model_color}%s${RESET} %s\n" \
+printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
     "$login_status" "$model_info" "$time_left"
-printf "  ${token_color}%s${RESET} ⚡API \$0 (normally \$${current_cost})\n" \
+printf "  ${token_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}⚡API \$0 (normally \$${current_cost})${COLOR_RESET}\n" \
     "$token_status"

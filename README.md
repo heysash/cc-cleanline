@@ -8,13 +8,14 @@ A professional status line script for Claude Code that displays comprehensive wo
 - **● Git Integration**: Active git branch or ○ no git repository status  
 - **● Login Status**: Dynamic connection status (● Logged-In / ○ Logged-Out)
 - **☆/★ Model Information**: Model-specific icons and colors
-  - ☆ Sonnet 4 in sandybrown
-  - ★ Opus 4.1 in darkorange
+  - ☆ Sonnet 4 in saddlebrown
+  - ★ Opus 4.1 in sandybrown
 - **✓/⚠ Context Window**: Real-time context window monitoring
   - ✓ Context window ok (green)
   - ⚠ Context window exceeded! Do /compress (red)
 - **⏱ Session Time**: Remaining time in current session block
 - **⚡ API Cost**: Real-time cost tracking with ccusage integration
+- **🎨 Customizable Configuration**: Full customization via configuration file
 
 ## Installation
 
@@ -23,11 +24,12 @@ A professional status line script for Claude Code that displays comprehensive wo
    ```bash
    chmod +x claude-code-statusline.sh
    ```
-3. Configure Claude Code to use this script by adding the following to your settings file
+3. The script will automatically use the default configuration. For custom settings, see the **Configuration** section below.
+4. Configure Claude Code to use this script by adding the following to your settings file
 
 ## Configuration
 
-### Settings File Location
+### Claude Code Settings
 
 Add the following configuration to your Claude Code settings file:
 
@@ -43,6 +45,38 @@ Add the following configuration to your Claude Code settings file:
 ```
 
 Replace `[PATH-TO-SCRIPT]` with the actual path to where you saved the script.
+
+### Customization via Configuration File
+
+The script includes a comprehensive configuration system via `statusline.config.sh`. This file allows you to customize:
+
+#### Colors
+- **Status Colors**: Active/inactive/critical states
+- **Model Colors**: Different colors for Opus and Sonnet models  
+- **UI Colors**: Text colors and theme elements
+
+#### Icons
+- Status indicators (●, ○, ⚠, ✓)
+- Custom icons for different states
+
+#### Labels
+- Text labels for login status
+- Context window messages
+- Model display names
+
+#### Example Configuration
+```bash
+# Custom colors (using 256-color codes)
+COLOR_ACTIVE_STATUS='\033[38;5;34m'     # Green
+COLOR_OPUS='\033[38;5;215m'             # Sandybrown
+COLOR_SONNET='\033[38;5;130m'           # Saddlebrown
+
+# Custom labels  
+LABEL_LOGGED_IN="Connected"
+LABEL_MODEL="Model"
+```
+
+The configuration file (`statusline.config.sh`) must be in the same directory as the main script. The script will automatically detect and load it.
 
 ### Auto-Detection Features
 
@@ -72,21 +106,23 @@ Example output:
 ⚠ Context window exceeded! Do /compress ⚡ API $0 (normally $3.80)
 ```
 
-### Color Scheme
+### Default Color Scheme
 
-The script uses a simplified, clean color palette:
+The script uses a clean, modern color palette:
 
-- **ForestGreen** (#228B22): All active status indicators
+- **Green** (256-color 34): All active status indicators
   - ● git branch (when in repository)
   - ● Logged-In
   - ✓ Context window ok
-- **Firebrick** (#B22222): All inactive status indicators
+- **Red** (256-color 196): All inactive/critical status indicators
   - ○ no git repository
-  - ○ Logged-Out  
+  - ○ Not logged in  
   - ⚠ Context window exceeded
-- **SandyBrown** (#F4A460): ☆ Sonnet 4 model
-- **DarkOrange** (#FF8C00): ★ Opus 4.1 model
-- **Default terminal color**: Directory paths, session time, API cost text
+- **Sandybrown** (256-color 215): ★ Opus 4.1 model
+- **Saddlebrown** (256-color 130): ☆ Sonnet 4 model
+- **DarkSlateGray** (#2F4F4F): Directory paths, session time, API cost text
+
+All colors can be customized via the `statusline.config.sh` configuration file.
 
 ## Context Window & Session Tracking
 
