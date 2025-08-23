@@ -16,6 +16,10 @@ CC CleanLine follows the clean code philosophy: **every element serves a purpose
 
 This isn't just about looking good (though it does) - it's about cognitive clarity. When your status line is clean and purposeful, your mind stays focused on what matters: your code.
 
+## Screenshot
+
+![Project Preview](assets/img/preview.png "Claude Code Status Line - CC CleanLine")
+
 ## Features
 
 🧹 **Clean & Minimalist** - Zero visual clutter, maximum information clarity  
