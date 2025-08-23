@@ -1,18 +1,20 @@
 # Claude Code Status Line Script
 
-A professional status line script for Claude Code that displays comprehensive workspace information, git status, model details, and real-time usage metrics with beautiful color-coded formatting.
+A professional status line script for Claude Code that displays comprehensive workspace information, git status, model details, session time, and context window monitoring with beautiful color-coded formatting.
 
 ## Features
 
-- **📁 Workspace Information**: Shows full directory path
-- **⎇ Git Integration**: Displays current git branch or "No git" status
-- **✅/⛔️ Login Status**: Dynamic connection status to Claude services
-- **＄ API Status**: Shows API availability (free/fee-based)
-- **🤖/🧠 Model Information**: Model-specific icons (Robot for Sonnet, Brain for Opus)
-- **🔋/🪫 Token Usage**: Real-time token tracking with ccusage integration
-  - Battery icon changes to low battery when >80% usage
-  - Thousands separator for better readability
-- **⏱️ Session Time**: Actual remaining time in current 5-hour block
+- **Directory Information**: Shows full directory path with git status
+- **● Git Integration**: Active git branch or ○ no git repository status  
+- **● Login Status**: Dynamic connection status (● Logged-In / ○ Logged-Out)
+- **☆/★ Model Information**: Model-specific icons and colors
+  - ☆ Sonnet 4 in sandybrown
+  - ★ Opus 4.1 in darkorange
+- **✓/⚠ Context Window**: Real-time context window monitoring
+  - ✓ Context window ok (green)
+  - ⚠ Context window exceeded! Do /compress (red)
+- **⏱ Session Time**: Remaining time in current session block
+- **⚡ API Cost**: Real-time cost tracking with ccusage integration
 
 ## Installation
 
@@ -51,34 +53,56 @@ The script automatically detects:
 
 ## Output Format
 
-The script displays information in two lines:
-1. **First line**: Full directory path
-2. **Second line**: All status information separated by bullet points
+The script displays information in three lines:
+1. **First line**: Git status and full directory path
+2. **Second line**: Login status, model information, and session time
+3. **Third line**: Context window status and API cost information
 
 Example output:
 ```
-📁 /Users/john-doe/developer/project
-⎇ git branch main • ✅ Logged-In • ＄ API free • 🧠 LLM Opus 4.1 • 🔋 Tokens 103,438/200,000 • ⏱️ Time left 2h 43m
+● git branch main ▶ /Users/john-doe/developer/project
+● Logged-In ☆ LLM Sonnet 4 ⏱ Session time left 2h 43m
+✓ Context window ok ⚡ API $0 (normally $2.50)
+```
+
+**Alternative states:**
+```
+○ no git repository ▶ /tmp/test-folder
+○ Logged-Out ★ LLM Opus 4.1 ⏱ Session time left 1h 15m
+⚠ Context window exceeded! Do /compress ⚡ API $0 (normally $3.80)
 ```
 
 ### Color Scheme
 
-- **SlateGray** (112,128,144): Directory path
-- **CornflowerBlue** (100,149,237): Git branch
-- **PaleGreen** (152,251,152): Logged-in status
-- **Salmon** (250,128,114): Logged-out status  
-- **DarkTurquoise** (0,206,209): API status
-- **MediumOrchid** (186,85,211): Model name
-- **Sienna** (160,82,45): Token usage
-- **PaleTurquoise** (175,238,238): Remaining time
+The script uses a simplified, clean color palette:
 
-## Token and Time Tracking
+- **ForestGreen** (#228B22): All active status indicators
+  - ● git branch (when in repository)
+  - ● Logged-In
+  - ✓ Context window ok
+- **Firebrick** (#B22222): All inactive status indicators
+  - ○ no git repository
+  - ○ Logged-Out  
+  - ⚠ Context window exceeded
+- **SandyBrown** (#F4A460): ☆ Sonnet 4 model
+- **DarkOrange** (#FF8C00): ★ Opus 4.1 model
+- **Default terminal color**: Directory paths, session time, API cost text
 
-The script integrates with [ccusage](https://github.com/ryoppippi/ccusage) to provide real-time token consumption and remaining time data:
+## Context Window & Session Tracking
 
+The script provides real-time monitoring of your Claude Code session:
+
+### Context Window Monitoring
+- **Built-in detection**: Uses Claude Code's `exceeds_200k_tokens` flag
+- **Visual indicators**: ✓ for OK, ⚠ for exceeded with compress recommendation
+- **Color coding**: Green for safe, red for exceeded
+
+### Session Time & Cost Tracking
+- **ccusage integration**: Uses [ccusage](https://github.com/ryoppippi/ccusage) for real-time data
 - **Automatic detection**: Uses `bunx ccusage@latest` if available
-- **5-hour block tracking**: Shows tokens used and remaining in current block
-- **Smart fallbacks**: Displays default values if ccusage is unavailable
+- **Session time**: Shows remaining time in current session block
+- **Cost tracking**: Displays current session cost vs. normal pricing
+- **Smart fallbacks**: Shows default values if ccusage is unavailable
 - **No installation required**: Runs ccusage on-demand via bunx
 
 ## Requirements
