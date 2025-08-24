@@ -35,12 +35,14 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 ## Installation
 
 1. Clone this repository:
+
    ```bash
    git clone https://github.com/heysash/cc-cleanline.git
    cd cc-cleanline
    ```
 
 2. Make executable:
+
    ```bash
    chmod +x cc-cleanline.sh
    ```
@@ -71,6 +73,7 @@ CC CleanLine uses `statusline.config.sh` for complete customization:
 - **Labels**: Login status, context messages, model names
 
 **Example customization:**
+
 ```bash
 # Clean, professional colors
 COLOR_ACTIVE_STATUS='\033[38;5;34m'     # Green
@@ -85,14 +88,16 @@ LABEL_MODEL="Model"
 ## Output Examples
 
 **Active development session:**
-```
+
+```text
 ● git branch main ▶ /Users/dev/projects/app
 ● Logged-In ☆ LLM Sonnet 4 ⏱ Session time left 2h 43m  
 ✓ Context window ok ⚡ API $0 (normally $2.50)
 ```
 
 **Outside git repo:**
-```
+
+```text
 ○ no git repository ▶ /tmp/scratch
 ○ Logged-Out ★ LLM Opus 4.1 ⏱ Session time left 1h 15m
 ⚠ Context window exceeded! Do /compress ⚡ API $3.80 (current session)
@@ -109,11 +114,13 @@ LABEL_MODEL="Model"
 ## Requirements
 
 ### Required
+
 - Bash shell
 - `jq` for JSON parsing  
 - Claude Code CLI
 
-### Optional  
+### Optional
+
 - `git` for branch detection
 - `bunx`/`npx` for ccusage cost tracking
 
