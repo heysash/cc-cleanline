@@ -3,15 +3,21 @@
 # Load configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="${SCRIPT_DIR}/cc-cleanline.config.sh"
+LOCAL_CONFIG_FILE="${SCRIPT_DIR}/cc-cleanline.config.local"
 
-# Check if config file exists
+# Check if default config file exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
     echo "Error: Configuration file not found at $CONFIG_FILE" >&2
     exit 1
 fi
 
-# Source the configuration
+# Source the default configuration
 source "$CONFIG_FILE"
+
+# Source local configuration overrides if they exist
+if [[ -f "$LOCAL_CONFIG_FILE" ]]; then
+    source "$LOCAL_CONFIG_FILE"
+fi
 
 # Read JSON input from stdin
 input=$(cat)

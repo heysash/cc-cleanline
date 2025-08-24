@@ -66,29 +66,40 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 
 ### Customization
 
-CC CleanLine uses `cc-cleanline.config.sh` for complete customization:
+CC CleanLine uses a two-tier configuration system for flexible customization:
 
+#### Default Configuration
+The base configuration is in `cc-cleanline.config.sh` which contains all default settings and gets updated when you pull new versions.
+
+#### Personal Overrides  
+Create `cc-cleanline.config.local` to override specific settings without affecting the base configuration. This file:
+- Is automatically ignored by git (stays local)
+- Only needs the variables you want to change
+- Takes precedence over default values
+
+**Setup your personal config:**
+
+1. Copy the example file:
+   ```bash
+   cp cc-cleanline.config.example cc-cleanline.config.local
+   ```
+
+2. Edit `cc-cleanline.config.local` and uncomment/modify any values:
+   ```bash
+   # Example personal overrides
+   COLOR_ACTIVE_STATUS='\033[94m'        # Blue instead of green
+   SHOW_FULL_PATH=true                   # Show full directory paths
+   ICON_ACTIVE="►"                       # Different active icon
+   LABEL_MODEL="Model"                   # Custom model label
+   ```
+
+#### Available Settings
 - **Colors**: Status states, model colors, UI elements
 - **Icons**: Status indicators (●, ○, ⚠, ✓)  
 - **Labels**: Login status, context messages, model names
+- **Display**: Path format, cost visibility, feature toggles
 
-**Example customization:**
-
-```bash
-# Clean, professional colors
-COLOR_ACTIVE_STATUS='\033[92m'          # Bright green
-COLOR_OPUS='\033[38;5;215m'             # Sandybrown  
-COLOR_SONNET='\033[38;5;130m'           # Saddlebrown
-COLOR_NEUTRAL_TEXT='\033[90m'           # Standard terminal gray
-
-# Cost Display Options
-SHOW_API_COSTS_WHEN_INCLUDED=false      # Hide cost details when logged in
-SHOW_API_COSTS=true                     # Show costs when not logged in
-
-# Custom labels
-LABEL_LOGGED_IN="Connected"
-LABEL_MODEL="Model"
-```
+The local config only needs variables you want to change - all others use the defaults.
 
 ## Output Examples
 

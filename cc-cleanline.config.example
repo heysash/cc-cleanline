@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# ====================================================================
+# CC CleanLine - Local Configuration Override Example
+# ====================================================================
+# This file shows how to override default configuration values.
+# 
+# USAGE:
+# 1. Copy this file to: cc-cleanline.config.local
+# 2. Uncomment and modify any values you want to change
+# 3. Your changes will override the defaults in cc-cleanline.config.sh
+# 
+# NOTE: The .local file is automatically ignored by git, so your
+# personal settings stay local and won't affect other users.
+# ====================================================================
+
+# Example: Change the active status color from green to blue
+# COLOR_ACTIVE_STATUS='\033[94m'  # Blue instead of default green
+
+# Example: Show full directory paths instead of just the current folder
+# SHOW_FULL_PATH=true
+
+# Example: Hide API costs when logged in and included
+# SHOW_API_COSTS_WHEN_INCLUDED=false
+
+# Example: Use different icons
+# ICON_ACTIVE="►"
+# ICON_INACTIVE="◯"
+
+# Example: Change model labels
+# LABEL_MODEL="Model"
+
+# ====================================================================
+# Available variables to override:
+# ====================================================================
+# All color, icon, label and display settings from cc-cleanline.config.sh
+# can be overridden here. Simply uncomment and set your preferred value.
