@@ -150,6 +150,23 @@ The local config only needs variables you want to change - all others use the de
 - **Configuration**: Hot-reloadable via `cc-cleanline.config.sh` with cost display options
 - **Output Format**: Consistent 3-line layout for reliable parsing
 
+## Experimental Features 🐰
+
+*"Curiouser and curiouser..." - Alice*
+
+Some say there are hidden pathways in the configuration files, waiting for the truly curious developer to discover them. What secrets lie behind innocent-looking settings? What happens when boredom meets code?
+
+> *Follow the white rabbit...*  
+> *The rabbit hole goes deeper than you think.*
+
+For those who dare to explore beyond the clean facade, remember: not all features are documented, and not all documentation tells the whole truth. Sometimes the most delightful discoveries come from reading between the lines... or perhaps from a simple boolean that asks "What's this?" 
+
+*The Matrix has CC CleanLine, and CC CleanLine has you.*
+
+---
+
+**Hint for the sleepless coders:** The configuration holds more than colors and labels. Those who work past midnight might find unexpected companions in their status line. Easter eggs are not just for Sunday.
+
 ## Author
 
 Created by [Sascha Rahn](https://github.com/heysash) • [heysash.com](https://heysash.com)

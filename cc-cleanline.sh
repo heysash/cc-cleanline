@@ -19,6 +19,12 @@ if [[ -f "$LOCAL_CONFIG_FILE" ]]; then
     source "$LOCAL_CONFIG_FILE"
 fi
 
+# Load Happy Mode Engine if it exists
+HAPPY_MODE_FILE="${SCRIPT_DIR}/happy-mode.sh"
+if [[ -f "$HAPPY_MODE_FILE" ]]; then
+    source "$HAPPY_MODE_FILE"
+fi
+
 # Read JSON input from stdin
 input=$(cat)
 
@@ -46,6 +52,20 @@ fi
 if git rev-parse --git-dir >/dev/null 2>&1; then
     branch=$(git branch --show-current 2>/dev/null)
     if [ -n "$branch" ]; then
+        # Apply rainbow effect to branch name if Happy Mode is enabled
+        display_branch="$branch"
+        if [[ "$HAPPY_MODE" == "true" || "$HAPPY_MODE" == "test" ]] && command -v generate_rainbow_branch >/dev/null 2>&1; then
+            # Higher chance in test mode, rare in normal mode
+            local branch_rainbow_chance=200
+            if [[ "$HAPPY_MODE" == "test" ]]; then
+                branch_rainbow_chance=10
+            fi
+            
+            if [[ $((RANDOM % $branch_rainbow_chance)) -eq 0 ]]; then
+                display_branch=$(generate_rainbow_branch "$branch")
+            fi
+        fi
+        
         # Check for actual git changes (staged + unstaged)
         staged_changes=$(git diff --cached --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
         unstaged_changes=$(git diff --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
@@ -53,14 +73,14 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
         # Only show changes if they exist
         if [ "$staged_changes" != "+0/-0" ] || [ "$unstaged_changes" != "+0/-0" ]; then
             if [ "$staged_changes" != "+0/-0" ] && [ "$unstaged_changes" != "+0/-0" ]; then
-                git_status="${ICON_ACTIVE} git branch ${branch} (${staged_changes}, ${unstaged_changes})"
+                git_status="${ICON_ACTIVE} git branch ${display_branch} (${staged_changes}, ${unstaged_changes})"
             elif [ "$staged_changes" != "+0/-0" ]; then
-                git_status="${ICON_ACTIVE} git branch ${branch} (${staged_changes})"
+                git_status="${ICON_ACTIVE} git branch ${display_branch} (${staged_changes})"
             else
-                git_status="${ICON_ACTIVE} git branch ${branch} (${unstaged_changes})"
+                git_status="${ICON_ACTIVE} git branch ${display_branch} (${unstaged_changes})"
             fi
         else
-            git_status="${ICON_ACTIVE} git branch ${branch}"
+            git_status="${ICON_ACTIVE} git branch ${display_branch}"
         fi
         git_color="$COLOR_ACTIVE_STATUS"
     else
@@ -271,14 +291,38 @@ time_left="⏱ Next Session ${time_remaining}"
 
 # Determine model info based on model name
 if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
-    model_info="☆ ${LABEL_MODEL} Sonnet 4"
+    model_display="Sonnet 4"
+    model_info="☆ ${LABEL_MODEL} ${model_display}"
     model_color="$COLOR_SONNET"
 elif [[ "$model_name" == *"opus"* ]] || [[ "$model_name" == *"Opus"* ]]; then
-    model_info="★ ${LABEL_MODEL} Opus 4.1"
+    model_display="Opus 4.1"
+    model_info="★ ${LABEL_MODEL} ${model_display}"
     model_color="$COLOR_OPUS"
 else
-    model_info="${ICON_ACTIVE} ${LABEL_MODEL} ${model_name}"
+    model_display="${model_name}"
+    model_info="${ICON_ACTIVE} ${LABEL_MODEL} ${model_display}"
     model_color="$COLOR_DEFAULT_MODEL"
+fi
+
+# Apply rainbow effect to model name rarely in Happy Mode
+if [[ "$HAPPY_MODE" == "true" || "$HAPPY_MODE" == "test" ]] && command -v rainbow_text >/dev/null 2>&1; then
+    # Higher chance in test mode
+    local model_rainbow_chance=500
+    if [[ "$HAPPY_MODE" == "test" ]]; then
+        model_rainbow_chance=5
+    fi
+    
+    if [[ $((RANDOM % $model_rainbow_chance)) -eq 0 ]]; then
+        model_display=$(rainbow_text "$model_display")
+        if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
+            model_info="☆ ${LABEL_MODEL} ${model_display}"
+        elif [[ "$model_name" == *"opus"* ]] || [[ "$model_name" == *"Opus"* ]]; then
+            model_info="★ ${LABEL_MODEL} ${model_display}"
+        else
+            model_info="${ICON_ACTIVE} ${LABEL_MODEL} ${model_display}"
+        fi
+        model_color=""  # No color needed, rainbow has its own
+    fi
 fi
 
 # Get session token status first (pass model color for Medium usage)
@@ -331,4 +375,30 @@ if [ -n "$session_token_status" ] && [ -n "$session_token_color" ]; then
     printf "  ${session_token_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$session_token_status" "$api_part"
 else
     printf "  ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$cost_display"
+fi
+
+# Happy Mode: Trigger easter eggs based on context
+if [[ "$HAPPY_MODE" == "true" || "$HAPPY_MODE" == "test" ]] && command -v trigger_happy_mode >/dev/null 2>&1; then
+    # Calculate session hours for long session detection
+    session_hours=0
+    if [[ -n "$time_remaining" ]]; then
+        # Extract hours from time_remaining (format: "Xh Ym" or "Xh")
+        if [[ "$time_remaining" =~ ([0-9]+)h ]]; then
+            # Session is 5 hours minus remaining time
+            remaining_hours="${BASH_REMATCH[1]}"
+            session_hours=$((5 - remaining_hours))
+        fi
+    fi
+    
+    # Better commit detection: check if last command was a git commit
+    last_git_command=$(history 1 2>/dev/null | grep -o 'git commit' || echo "")
+    recent_commit=$(git log -1 --since="2 minutes ago" --oneline 2>/dev/null)
+    
+    if [[ -n "$last_git_command" ]] || [[ -n "$recent_commit" ]]; then
+        trigger_happy_mode "commit"
+    elif git rev-parse --git-dir >/dev/null 2>&1; then
+        trigger_happy_mode "git"
+    else
+        trigger_happy_mode "status" "$session_hours"
+    fi
 fi

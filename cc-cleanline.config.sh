@@ -77,3 +77,16 @@ SHOW_API_COSTS=true                       # When not logged in: shows actual API
 
 # Update Settings
 # UPDATE_INTERVAL=30                      # Update interval in seconds
+
+# --------------------------------------------------------------------
+# HAPPY MODE SETTINGS (Easter Eggs for Bored Devs)
+# --------------------------------------------------------------------
+# Experimental mode for developers who found this... What's this? 🐰
+HAPPY_MODE=false                           # Enable random easter eggs and surprises
+
+# Happy Mode Configuration (when enabled)
+HAPPY_MODE_MATRIX_CHANCE=33                # Matrix references chance % (33% recommended)
+HAPPY_MODE_FORTUNE_CHANCE=33               # Fortune cookies chance % after commits
+HAPPY_MODE_TIME_SURPRISES=true             # Enable time-based messages  
+HAPPY_MODE_RAINBOW_CHANCE=10               # Rainbow effects chance % (rare but visible)
+HAPPY_MODE_COOLDOWN_MINUTES=15             # Minimum minutes between surprises
