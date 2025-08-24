@@ -24,8 +24,6 @@ current_dir=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
 session_id=$(echo "$input" | jq -r '.session_id')
 
-# Get token status from Claude Code input
-exceeds_200k_tokens=$(echo "$input" | jq -r '.exceeds_200k_tokens // false')
 
 # Get cost and code changes from Claude Code JSON
 total_cost_usd=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
@@ -128,14 +126,7 @@ get_today_total_cost() {
 
 today_total_cost=$(get_today_total_cost)
 
-# Simple token status based on exceeds_200k_tokens flag
-if [ "$exceeds_200k_tokens" = "true" ]; then
-    token_status="${ICON_WARNING} ${LABEL_CONTEXT_CRITICAL}! Do /compress"
-    token_color="$COLOR_CRITICAL_STATUS"
-else
-    token_status="${ICON_CHECK} ${LABEL_CONTEXT_OK}"
-    token_color="$COLOR_ACTIVE_STATUS"
-fi
+
 
 if [ "$is_logged_in" = true ]; then
     login_status="${ICON_ACTIVE} ${LABEL_LOGGED_IN}"
@@ -203,6 +194,54 @@ get_time_until_next_session() {
     fi
 }
 
+# Get session token usage status (5h window)
+get_session_token_status() {
+    if command -v bunx >/dev/null 2>&1; then
+        local usage_json
+        usage_json=$(bunx ccusage@latest blocks --json 2>/dev/null || echo "{}")
+        
+        if [ "$usage_json" != "{}" ] && [ -n "$usage_json" ]; then
+            local active_block
+            active_block=$(echo "$usage_json" | jq '.blocks[] | select(.isActive == true)' 2>/dev/null)
+            
+            if [ -n "$active_block" ]; then
+                # Token limit for 5h session (from ccusage observations)
+                local token_limit=77679587
+                
+                # Get current token usage
+                local total_tokens
+                total_tokens=$(echo "$active_block" | jq -r '.totalTokens // 0' 2>/dev/null)
+                
+                if [ "$total_tokens" -gt 0 ]; then
+                    # Calculate percentages
+                    local percent_used=$(( (total_tokens * 100) / token_limit ))
+                    local percent_remaining=$((100 - percent_used))
+                    local tokens_remaining=$((token_limit - total_tokens))
+                    
+                    # Format remaining tokens with comma separators
+                    local formatted_tokens=$(printf "%'d" $tokens_remaining 2>/dev/null || echo "$tokens_remaining")
+                    
+                    # Determine status based on usage percentage
+                    if [ "$percent_used" -lt 40 ]; then
+                        # Low usage
+                        echo "${ICON_ACTIVE} 5h Max Tokens|$COLOR_NEUTRAL_TEXT"
+                    elif [ "$percent_used" -lt 75 ]; then
+                        # Medium usage
+                        echo "${ICON_ACTIVE} 5h Max Tokens|$COLOR_NEUTRAL_TEXT"
+                    else
+                        # High usage - show percentage and count
+                        echo "${ICON_ACTIVE} 5h Max Tokens: ${percent_remaining}% remain (${formatted_tokens})|$COLOR_NEUTRAL_TEXT"
+                    fi
+                    return
+                fi
+            fi
+        fi
+    fi
+    
+    # No data available
+    echo ""
+}
+
 time_remaining=$(get_time_until_next_session)
 
 # Format time until next session
@@ -227,10 +266,21 @@ else
     cost_display="⚡API \$$(printf "%.2f" "$total_cost_usd") (current session)"
 fi
 
+# Get session token status
+session_token_result=$(get_session_token_status)
+if [ -n "$session_token_result" ]; then
+    session_token_status=$(echo "$session_token_result" | cut -d'|' -f1)
+    session_token_color=$(echo "$session_token_result" | cut -d'|' -f2)
+fi
+
 # Build the status line
 printf "${git_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}▶ %s${COLOR_RESET}\n" \
     "$git_status" "$dir_path"
 printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
     "$login_status" "$model_info" "$time_left"
-printf "  ${token_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
-    "$token_status" "$cost_display"
+printf "  ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$cost_display"
+
+# Add session token status if available
+if [ -n "$session_token_status" ]; then
+    printf "  ${session_token_color}%s${COLOR_RESET}\n" "$session_token_status"
+fi

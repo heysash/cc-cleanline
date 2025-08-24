@@ -44,12 +44,9 @@ ICON_CHECK="✓"                          # Success/okay indicator
 
 # Active Status Labels
 LABEL_LOGGED_IN="Logged-In"             # User is logged in
-LABEL_CONTEXT_OK="Below 200k Tokens"    # Context window within limits
-LABEL_CONTEXT_CRITICAL="Exceeds 200k Tokens" # Context window exceeded
 
 # Inactive Status Labels  
 LABEL_NOT_LOGGED_IN="Not logged in"     # User not logged in
-LABEL_NO_CONTEXT="No context data"      # Context data unavailable
 
 # Field Labels
 LABEL_MODEL="LLM"                       # Model field label

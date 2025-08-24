@@ -25,12 +25,12 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 🧹 **Clean & Minimalist** - Zero visual clutter, maximum information clarity  
 ⚙️ **Configurable** - Fully customizable via `cc-cleanline.config.sh`  
 🔮 **Future-Proof** - Designed for extensibility and layout variations  
-🧠 **Intelligent** - Smart context monitoring and real-time cost tracking  
-🎯 **Focused** - 3-line output: Git + Directory / Login + Model + Time / Context + Cost  
+🧠 **Intelligent** - Smart session token monitoring and real-time cost tracking  
+🎯 **Focused** - 3-line output: Git + Directory / Login + Model + Time / Session Tokens + Cost  
 🌈 **Color-Coded** - Model-specific colors (Sonnet=saddlebrown, Opus=sandybrown)  
 📊 **Cost Tracking** - Accurate daily totals and session costs via ccusage integration  
 🔄 **Git Integration** - Branch detection with code change indicators (+lines/-lines)  
-⚡ **Context Monitoring** - Built-in `exceeds_200k_tokens` flag support  
+⚡ **Session Tokens** - 5h Max Tokens tracking for session management  
 
 ## Installation
 
@@ -92,7 +92,8 @@ LABEL_MODEL="Model"
 ```text
 ● git branch main (+15/-3) ▶ ./project
 ● Logged-In ★ LLM Opus 4.1 ⏱ Next Session in 2h 43m  
-✓ Below 200k Tokens ⚡API Included - Saved Today $25.47 This Session $18.20
+  ⚡API Included - Saved Today $25.47 This Session $18.20
+  ● 5h Max Tokens
 ```
 
 **Outside git repo:**
@@ -100,16 +101,16 @@ LABEL_MODEL="Model"
 ```text
 ○ no git repository ▶ ./scratch
 ○ Not logged in ☆ LLM Sonnet 4 ⏱ Next Session in 1h 15m
-⚠ Exceeds 200k Tokens! Do /compress ⚡API $3.80 (current session)
+  ⚡API $3.80 (current session)
 ```
 
 ### Clean Color Scheme
 
-- **Green** (active states): git branch, logged in, context below 200k
-- **Red** (attention states): no git, logged out, context exceeded  
+- **Green** (active states): git branch, logged in, session tokens
+- **Red** (attention states): no git, logged out  
 - **Sandybrown**: ★ Opus 4.1 model
 - **Saddlebrown**: ☆ Sonnet 4 model
-- **DarkSlateGray**: Directory paths, times, costs
+- **DarkSlateGray**: Directory paths, times, costs, session tokens
 
 ## Requirements
 
@@ -126,12 +127,12 @@ LABEL_MODEL="Model"
 
 ## Technical Details
 
-- **Context Monitoring**: Uses Claude Code's `exceeds_200k_tokens` flag with clear messaging
+- **Session Token Tracking**: Monitors 5h session token usage with smart threshold display
 - **Cost Tracking**: Integrates with [ccusage](https://github.com/ryoppippi/ccusage) for accurate daily totals and current session costs
 - **Time Display**: Shows remaining session time from ccusage active block or fallback calculation
 - **Git Integration**: Automatic branch detection with code change indicators (+lines/-lines)
 - **Configuration**: Hot-reloadable via `cc-cleanline.config.sh`
-- **Output Format**: Consistent 3-line layout for reliable parsing
+- **Output Format**: Consistent multi-line layout for reliable parsing
 
 ## Author
 
