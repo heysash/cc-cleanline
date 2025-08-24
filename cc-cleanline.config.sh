@@ -13,9 +13,11 @@
 # Terminal color codes for different status states and UI elements
 
 # Status Colors
-COLOR_ACTIVE_STATUS='\033[38;5;34m'     # Green - Active/connected state
+COLOR_ACTIVE_STATUS='\033[92m'          # Light green - Active/connected state (consistent bright green)
 COLOR_INACTIVE_STATUS='\033[38;5;196m'  # Red - Inactive/disconnected state
 COLOR_CRITICAL_STATUS='\033[38;5;196m'  # Red - Critical state
+COLOR_ORANGE='\033[38;5;208m'           # Orange - Medium usage
+COLOR_RED='\033[38;5;196m'              # Red - High usage
 
 # Model Colors
 COLOR_OPUS='\033[38;5;215m'             # Sandybrown #F4A460 - Opus model
@@ -23,7 +25,7 @@ COLOR_SONNET='\033[38;5;130m'           # Saddlebrown #8B4513 - Sonnet model
 COLOR_DEFAULT_MODEL='\033[38;5;248m'    # Darkgray #A9A9A9 - Unknown model
 
 # UI Element Colors
-COLOR_NEUTRAL_TEXT='\033[38;2;47;79;79m'  # DarkSlateGray #2F4F4F - Neutral text
+COLOR_NEUTRAL_TEXT='\033[90m'             # Standard terminal gray - Neutral text  
 COLOR_RESET='\033[0m'                     # Reset to default
 
 # --------------------------------------------------------------------
@@ -68,6 +70,10 @@ SHOW_FULL_PATH=false                      # Show full directory path vs. short n
 # USE_ICONS=true                          # Use icons in display
 # USE_COLORS=true                         # Use colored output
 # SHOW_SEPARATORS=true                    # Show separators between sections
+
+# Cost Display Options
+SHOW_API_COSTS_WHEN_INCLUDED=false        # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
+SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
 
 # Update Settings
 # UPDATE_INTERVAL=30                      # Update interval in seconds

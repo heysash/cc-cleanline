@@ -25,10 +25,8 @@ model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
 session_id=$(echo "$input" | jq -r '.session_id')
 
 
-# Get cost and code changes from Claude Code JSON
+# Get cost from Claude Code JSON
 total_cost_usd=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
-lines_added=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
-lines_removed=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
 
 # Format directory path based on configuration
 if [ "$SHOW_FULL_PATH" = true ]; then
@@ -38,13 +36,23 @@ else
     dir_path="./$(basename "$current_dir")"
 fi
 
-# Get git branch with code changes or show "no git repository" if not in repo
+# Get git branch with uncommitted changes or show "no git repository" if not in repo
 if git rev-parse --git-dir >/dev/null 2>&1; then
     branch=$(git branch --show-current 2>/dev/null)
     if [ -n "$branch" ]; then
-        # Add code changes if available (show only if non-zero)
-        if [ "$lines_added" -gt 0 ] || [ "$lines_removed" -gt 0 ]; then
-            git_status="${ICON_ACTIVE} git branch ${branch} (+${lines_added}/-${lines_removed})"
+        # Check for actual git changes (staged + unstaged)
+        staged_changes=$(git diff --cached --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
+        unstaged_changes=$(git diff --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
+        
+        # Only show changes if they exist
+        if [ "$staged_changes" != "+0/-0" ] || [ "$unstaged_changes" != "+0/-0" ]; then
+            if [ "$staged_changes" != "+0/-0" ] && [ "$unstaged_changes" != "+0/-0" ]; then
+                git_status="${ICON_ACTIVE} git branch ${branch} (${staged_changes}, ${unstaged_changes})"
+            elif [ "$staged_changes" != "+0/-0" ]; then
+                git_status="${ICON_ACTIVE} git branch ${branch} (${staged_changes})"
+            else
+                git_status="${ICON_ACTIVE} git branch ${branch} (${unstaged_changes})"
+            fi
         else
             git_status="${ICON_ACTIVE} git branch ${branch}"
         fi
@@ -103,13 +111,20 @@ get_today_total_cost() {
             local today_date
             today_date=$(date +"%Y-%m-%d")
             
-            # Sum all blocks from today that are not gaps
+            # Sum all blocks from today that are not gaps using jq for better precision
             local total_cost
             total_cost=$(echo "$usage_json" | jq --arg today "$today_date" '
-                .blocks[] 
+                [.blocks[] 
                 | select(.startTime | startswith($today)) 
                 | select(.isGap == false) 
-                | .costUSD' 2>/dev/null | awk '{sum += $1} END {printf "%.2f", sum}')
+                | .costUSD] | add | . * 100 | floor / 100' 2>/dev/null)
+            
+            # Format to ensure exactly 2 decimal places
+            if [ -n "$total_cost" ] && [ "$total_cost" != "null" ]; then
+                total_cost=$(printf "%.2f" "$total_cost")
+            else
+                total_cost="0.00"
+            fi
             
             if [ -n "$total_cost" ] && [ "$total_cost" != "0.00" ]; then
                 echo "$total_cost"
@@ -196,6 +211,7 @@ get_time_until_next_session() {
 
 # Get session token usage status (5h window)
 get_session_token_status() {
+    local model_orange_color="$1"  # Pass model color for Medium usage
     if command -v bunx >/dev/null 2>&1; then
         local usage_json
         usage_json=$(bunx ccusage@latest blocks --json 2>/dev/null || echo "{}")
@@ -223,14 +239,14 @@ get_session_token_status() {
                     
                     # Determine status based on usage percentage
                     if [ "$percent_used" -lt 40 ]; then
-                        # Low usage
-                        echo "${ICON_ACTIVE} 5h Max Tokens|$COLOR_NEUTRAL_TEXT"
+                        # Low usage - green color
+                        echo "${ICON_ACTIVE} 5h Max Tokens Low|$COLOR_ACTIVE_STATUS"
                     elif [ "$percent_used" -lt 75 ]; then
-                        # Medium usage
-                        echo "${ICON_ACTIVE} 5h Max Tokens|$COLOR_NEUTRAL_TEXT"
+                        # Medium usage - use model's orange color
+                        echo "${ICON_ACTIVE} 5h Max Tokens Medium|$model_orange_color"
                     else
-                        # High usage - show percentage and count
-                        echo "${ICON_ACTIVE} 5h Max Tokens: ${percent_remaining}% remain (${formatted_tokens})|$COLOR_NEUTRAL_TEXT"
+                        # High usage - red color with details
+                        echo "${ICON_ACTIVE} 5h Max Tokens High: ${percent_remaining}% remain (${formatted_tokens})|$COLOR_RED"
                     fi
                     return
                 fi
@@ -245,7 +261,7 @@ get_session_token_status() {
 time_remaining=$(get_time_until_next_session)
 
 # Format time until next session
-time_left="⏱ Next Session in ${time_remaining}"
+time_left="⏱ Next Session ${time_remaining}"
 
 # Determine model info based on model name
 if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
@@ -259,28 +275,54 @@ else
     model_color="$COLOR_DEFAULT_MODEL"
 fi
 
-# Determine cost display using ccusage data
-if [ "$is_logged_in" = true ]; then
-    cost_display="⚡API Included - Saved Today \$$today_total_cost This Session \$$current_session_cost"
-else
-    cost_display="⚡API \$$(printf "%.2f" "$total_cost_usd") (current session)"
-fi
-
-# Get session token status
-session_token_result=$(get_session_token_status)
+# Get session token status first (pass model color for Medium usage)
+session_token_result=$(get_session_token_status "$model_color")
 if [ -n "$session_token_result" ]; then
     session_token_status=$(echo "$session_token_result" | cut -d'|' -f1)
     session_token_color=$(echo "$session_token_result" | cut -d'|' -f2)
 fi
 
-# Build the status line
+# Determine cost display using ccusage data, combined with token status
+if [ "$is_logged_in" = true ]; then
+    # When logged in
+    if [ "$SHOW_API_COSTS_WHEN_INCLUDED" = true ]; then
+        api_part="⚡API Costs Included - Saved Today \$$today_total_cost This Session \$$current_session_cost"
+    else
+        api_part="⚡API Costs Included"
+    fi
+    
+    if [ -n "$session_token_status" ]; then
+        cost_display="${session_token_status} ${api_part}"
+    else
+        cost_display="${api_part}"
+    fi
+else
+    # When not logged in
+    if [ "$SHOW_API_COSTS" = true ]; then
+        api_part="⚡API \$$(printf "%.2f" "$total_cost_usd") (current session)"
+    else
+        api_part="⚡API"
+    fi
+    
+    if [ -n "$session_token_status" ]; then
+        cost_display="${session_token_status} ${api_part}"
+    else
+        cost_display="${api_part}"
+    fi
+fi
+
+
+# Build the status line - now with combined cost and token display
 printf "${git_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}▶ %s${COLOR_RESET}\n" \
     "$git_status" "$dir_path"
 printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
     "$login_status" "$model_info" "$time_left"
-printf "  ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$cost_display"
 
-# Add session token status if available
-if [ -n "$session_token_status" ]; then
-    printf "  ${session_token_color}%s${COLOR_RESET}\n" "$session_token_status"
+# Display cost with token status combined, using appropriate colors
+if [ -n "$session_token_status" ] && [ -n "$session_token_color" ]; then
+    # Token status is now at the beginning, extract API part
+    api_part="${cost_display#${session_token_status} }"
+    printf "  ${session_token_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$session_token_status" "$api_part"
+else
+    printf "  ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$cost_display"
 fi

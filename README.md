@@ -26,11 +26,11 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 ⚙️ **Configurable** - Fully customizable via `cc-cleanline.config.sh`  
 🔮 **Future-Proof** - Designed for extensibility and layout variations  
 🧠 **Intelligent** - Smart session token monitoring and real-time cost tracking  
-🎯 **Focused** - 3-line output: Git + Directory / Login + Model + Time / Session Tokens + Cost  
+🎯 **Focused** - 3-line output: Git + Directory / Login + Model + Time / Tokens + API Costs  
 🌈 **Color-Coded** - Model-specific colors (Sonnet=saddlebrown, Opus=sandybrown)  
 📊 **Cost Tracking** - Accurate daily totals and session costs via ccusage integration  
-🔄 **Git Integration** - Branch detection with code change indicators (+lines/-lines)  
-⚡ **Session Tokens** - 5h Max Tokens tracking for session management  
+🔄 **Git Integration** - Branch detection with real uncommitted changes (+lines/-lines)  
+⚡ **Session Tokens** - 5h Max Tokens tracking with Low/Medium/High thresholds  
 
 ## Installation
 
@@ -76,9 +76,14 @@ CC CleanLine uses `cc-cleanline.config.sh` for complete customization:
 
 ```bash
 # Clean, professional colors
-COLOR_ACTIVE_STATUS='\033[38;5;34m'     # Green
+COLOR_ACTIVE_STATUS='\033[92m'          # Bright green
 COLOR_OPUS='\033[38;5;215m'             # Sandybrown  
 COLOR_SONNET='\033[38;5;130m'           # Saddlebrown
+COLOR_NEUTRAL_TEXT='\033[90m'           # Standard terminal gray
+
+# Cost Display Options
+SHOW_API_COSTS_WHEN_INCLUDED=false      # Hide cost details when logged in
+SHOW_API_COSTS=true                     # Show costs when not logged in
 
 # Custom labels
 LABEL_LOGGED_IN="Connected"
@@ -91,26 +96,26 @@ LABEL_MODEL="Model"
 
 ```text
 ● git branch main (+15/-3) ▶ ./project
-● Logged-In ★ LLM Opus 4.1 ⏱ Next Session in 2h 43m  
-  ⚡API Included - Saved Today $25.47 This Session $18.20
-  ● 5h Max Tokens
+● Logged-In ★ LLM Opus 4.1 ⏱ Next Session 2h 43m  
+  ● 5h Max Tokens Low ⚡API Costs Included
 ```
 
 **Outside git repo:**
 
 ```text
 ○ no git repository ▶ ./scratch
-○ Not logged in ☆ LLM Sonnet 4 ⏱ Next Session in 1h 15m
+○ Not logged in ☆ LLM Sonnet 4 ⏱ Next Session 1h 15m
   ⚡API $3.80 (current session)
 ```
 
 ### Clean Color Scheme
 
-- **Green** (active states): git branch, logged in, session tokens
-- **Red** (attention states): no git, logged out  
+- **Bright Green** (active states): git branch, logged in, Low token usage
+- **Orange** (Medium token usage): matches current model color for consistency
+- **Red** (attention states): no git, logged out, High token usage  
 - **Sandybrown**: ★ Opus 4.1 model
 - **Saddlebrown**: ☆ Sonnet 4 model
-- **DarkSlateGray**: Directory paths, times, costs, session tokens
+- **Standard Gray**: Directory paths, times, costs, neutral text
 
 ## Requirements
 
@@ -127,12 +132,12 @@ LABEL_MODEL="Model"
 
 ## Technical Details
 
-- **Session Token Tracking**: Monitors 5h session token usage with smart threshold display
-- **Cost Tracking**: Integrates with [ccusage](https://github.com/ryoppippi/ccusage) for accurate daily totals and current session costs
+- **Session Token Tracking**: Monitors 5h session token usage with Low/Medium/High thresholds and model-matched colors
+- **Cost Tracking**: Integrates with [ccusage](https://github.com/ryoppippi/ccusage) for accurate daily totals and current session costs with improved precision using jq
 - **Time Display**: Shows remaining session time from ccusage active block or fallback calculation
-- **Git Integration**: Automatic branch detection with code change indicators (+lines/-lines)
-- **Configuration**: Hot-reloadable via `cc-cleanline.config.sh`
-- **Output Format**: Consistent multi-line layout for reliable parsing
+- **Git Integration**: Automatic branch detection with real uncommitted changes only (+lines/-lines)
+- **Configuration**: Hot-reloadable via `cc-cleanline.config.sh` with cost display options
+- **Output Format**: Consistent 3-line layout for reliable parsing
 
 ## Author
 
