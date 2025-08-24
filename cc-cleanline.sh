@@ -16,6 +16,9 @@ source "$CONFIG_FILE"
 # Read JSON input from stdin
 input=$(cat)
 
+# Debug logging (uncomment to capture real Claude Code JSON)
+# echo "$(date): $input" >> "${SCRIPT_DIR}/debug-input.log"
+
 # Extract data from JSON
 current_dir=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
@@ -23,6 +26,11 @@ session_id=$(echo "$input" | jq -r '.session_id')
 
 # Get token status from Claude Code input
 exceeds_200k_tokens=$(echo "$input" | jq -r '.exceeds_200k_tokens // false')
+
+# Get cost and code changes from Claude Code JSON
+total_cost_usd=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
+lines_added=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
+lines_removed=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
 
 # Format directory path based on configuration
 if [ "$SHOW_FULL_PATH" = true ]; then
@@ -32,11 +40,16 @@ else
     dir_path="./$(basename "$current_dir")"
 fi
 
-# Get git branch or show "no git repository" if not in repo
+# Get git branch with code changes or show "no git repository" if not in repo
 if git rev-parse --git-dir >/dev/null 2>&1; then
     branch=$(git branch --show-current 2>/dev/null)
     if [ -n "$branch" ]; then
-        git_status="${ICON_ACTIVE} git branch ${branch}"
+        # Add code changes if available (show only if non-zero)
+        if [ "$lines_added" -gt 0 ] || [ "$lines_removed" -gt 0 ]; then
+            git_status="${ICON_ACTIVE} git branch ${branch} (+${lines_added}/-${lines_removed})"
+        else
+            git_status="${ICON_ACTIVE} git branch ${branch}"
+        fi
         git_color="$COLOR_ACTIVE_STATUS"
     else
         git_status="${ICON_INACTIVE} no git repository"
@@ -54,8 +67,8 @@ else
     is_logged_in=false
 fi
 
-# Get current cost from ccusage
-get_current_cost() {
+# Get current session cost from ccusage (for active session block)
+get_current_session_cost() {
     if command -v bunx >/dev/null 2>&1; then
         local usage_json
         usage_json=$(bunx ccusage@latest blocks --json 2>/dev/null || echo "{}")
@@ -80,7 +93,40 @@ get_current_cost() {
     fi
 }
 
-current_cost=$(get_current_cost)
+current_session_cost=$(get_current_session_cost)
+
+# Get total cost for today from ccusage
+get_today_total_cost() {
+    if command -v bunx >/dev/null 2>&1; then
+        local usage_json
+        usage_json=$(bunx ccusage@latest blocks --json 2>/dev/null || echo "{}")
+        
+        if [ "$usage_json" != "{}" ] && [ -n "$usage_json" ]; then
+            local today_date
+            today_date=$(date +"%Y-%m-%d")
+            
+            # Sum all blocks from today that are not gaps
+            local total_cost
+            total_cost=$(echo "$usage_json" | jq --arg today "$today_date" '
+                .blocks[] 
+                | select(.startTime | startswith($today)) 
+                | select(.isGap == false) 
+                | .costUSD' 2>/dev/null | awk '{sum += $1} END {printf "%.2f", sum}')
+            
+            if [ -n "$total_cost" ] && [ "$total_cost" != "0.00" ]; then
+                echo "$total_cost"
+            else
+                echo "0.00"
+            fi
+        else
+            echo "0.00"
+        fi
+    else
+        echo "0.00"
+    fi
+}
+
+today_total_cost=$(get_today_total_cost)
 
 # Simple token status based on exceeds_200k_tokens flag
 if [ "$exceeds_200k_tokens" = "true" ]; then
@@ -99,47 +145,68 @@ else
     login_color="$COLOR_INACTIVE_STATUS"
 fi
 
-# Get remaining time from ccusage
-get_time_remaining() {
+# Calculate time until next session - checks ccusage for active session first
+get_time_until_next_session() {
+    # First try to get time from ccusage if available
     if command -v bunx >/dev/null 2>&1; then
         local usage_json
         usage_json=$(bunx ccusage@latest blocks --json 2>/dev/null || echo "{}")
         
         if [ "$usage_json" != "{}" ] && [ -n "$usage_json" ]; then
-            # Find the active block and get remaining time
+            # Check if there's an active block
             local active_block
             active_block=$(echo "$usage_json" | jq '.blocks[] | select(.isActive == true)' 2>/dev/null)
             
             if [ -n "$active_block" ]; then
+                # Get remaining time from active block
                 local remaining_minutes
-                remaining_minutes=$(echo "$active_block" | jq -r '.projection.remainingMinutes // null' 2>/dev/null)
+                remaining_minutes=$(echo "$active_block" | jq -r '.projection.remainingMinutes // 0' 2>/dev/null)
                 
-                if [ "$remaining_minutes" != "null" ] && [ "$remaining_minutes" -gt 0 ] 2>/dev/null; then
+                if [ "$remaining_minutes" -gt 0 ]; then
+                    # Convert minutes to hours and minutes
                     local hours=$((remaining_minutes / 60))
                     local minutes=$((remaining_minutes % 60))
-                    echo "${hours}h ${minutes}m"
-                else
-                    echo "0h 0m"
+                    
+                    # Format output
+                    if [ "$minutes" -eq 0 ]; then
+                        echo "${hours}h"
+                    else
+                        echo "${hours}h ${minutes}m"
+                    fi
+                    return
                 fi
-            else
-                echo "5h 0m"
             fi
-        else
-            echo "5h 0m"
         fi
+    fi
+    
+    # Fallback to Anthropic Hour Boundary logic if no active session in ccusage
+    local current_hour=$(date +"%H")
+    local current_minute=$(date +"%M")
+    
+    # Session duration is 5 hours minus the minutes already elapsed in current hour
+    local session_duration_minutes=$((5 * 60 - current_minute))
+    
+    # If we're at exactly the hour boundary, session is full 5 hours
+    if [ "$current_minute" -eq 0 ]; then
+        session_duration_minutes=$((5 * 60))
+    fi
+    
+    # Convert back to hours and minutes
+    local hours=$((session_duration_minutes / 60))
+    local minutes=$((session_duration_minutes % 60))
+    
+    # Format output
+    if [ "$minutes" -eq 0 ]; then
+        echo "${hours}h"
     else
-        echo "5h 0m"
+        echo "${hours}h ${minutes}m"
     fi
 }
 
-time_remaining=$(get_time_remaining)
+time_remaining=$(get_time_until_next_session)
 
-# Format time remaining
-if [ "$time_remaining" != "N/A" ]; then
-    time_left="⏱ Session time left ${time_remaining}"
-else
-    time_left="⏱ Session time left N/A"
-fi
+# Format time until next session
+time_left="⏱ Next Session in ${time_remaining}"
 
 # Determine model info based on model name
 if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
@@ -153,11 +220,11 @@ else
     model_color="$COLOR_DEFAULT_MODEL"
 fi
 
-# Determine cost display based on login status
+# Determine cost display using ccusage data
 if [ "$is_logged_in" = true ]; then
-    cost_display="⚡API \$0 (normally \$${current_cost})"
+    cost_display="⚡API Included - Saved Today \$$today_total_cost This Session \$$current_session_cost"
 else
-    cost_display="⚡API \$${current_cost} (current session)"
+    cost_display="⚡API \$$(printf "%.2f" "$total_cost_usd") (current session)"
 fi
 
 # Build the status line

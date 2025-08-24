@@ -23,13 +23,13 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 ## Features
 
 🧹 **Clean & Minimalist** - Zero visual clutter, maximum information clarity  
-⚙️ **Configurable** - Fully customizable via `statusline.config.sh`  
+⚙️ **Configurable** - Fully customizable via `cc-cleanline.config.sh`  
 🔮 **Future-Proof** - Designed for extensibility and layout variations  
 🧠 **Intelligent** - Smart context monitoring and real-time cost tracking  
 🎯 **Focused** - 3-line output: Git + Directory / Login + Model + Time / Context + Cost  
 🌈 **Color-Coded** - Model-specific colors (Sonnet=saddlebrown, Opus=sandybrown)  
-📊 **Cost Tracking** - Real-time session costs via ccusage integration  
-🔄 **Git Integration** - Branch detection with clean status indicators  
+📊 **Cost Tracking** - Accurate daily totals and session costs via ccusage integration  
+🔄 **Git Integration** - Branch detection with code change indicators (+lines/-lines)  
 ⚡ **Context Monitoring** - Built-in `exceeds_200k_tokens` flag support  
 
 ## Installation
@@ -66,7 +66,7 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 
 ### Customization
 
-CC CleanLine uses `statusline.config.sh` for complete customization:
+CC CleanLine uses `cc-cleanline.config.sh` for complete customization:
 
 - **Colors**: Status states, model colors, UI elements
 - **Icons**: Status indicators (●, ○, ⚠, ✓)  
@@ -90,22 +90,22 @@ LABEL_MODEL="Model"
 **Active development session:**
 
 ```text
-● git branch main ▶ /Users/dev/projects/app
-● Logged-In ☆ LLM Sonnet 4 ⏱ Session time left 2h 43m  
-✓ Context window ok ⚡ API $0 (normally $2.50)
+● git branch main (+15/-3) ▶ ./project
+● Logged-In ★ LLM Opus 4.1 ⏱ Next Session in 2h 43m  
+✓ Below 200k Tokens ⚡API Included - Saved Today $25.47 This Session $18.20
 ```
 
 **Outside git repo:**
 
 ```text
-○ no git repository ▶ /tmp/scratch
-○ Logged-Out ★ LLM Opus 4.1 ⏱ Session time left 1h 15m
-⚠ Context window exceeded! Do /compress ⚡ API $3.80 (current session)
+○ no git repository ▶ ./scratch
+○ Not logged in ☆ LLM Sonnet 4 ⏱ Next Session in 1h 15m
+⚠ Exceeds 200k Tokens! Do /compress ⚡API $3.80 (current session)
 ```
 
 ### Clean Color Scheme
 
-- **Green** (active states): git branch, logged in, context OK
+- **Green** (active states): git branch, logged in, context below 200k
 - **Red** (attention states): no git, logged out, context exceeded  
 - **Sandybrown**: ★ Opus 4.1 model
 - **Saddlebrown**: ☆ Sonnet 4 model
@@ -126,10 +126,11 @@ LABEL_MODEL="Model"
 
 ## Technical Details
 
-- **Context Monitoring**: Uses Claude Code's `exceeds_200k_tokens` flag
-- **Cost Tracking**: Integrates with [ccusage](https://github.com/ryoppippi/ccusage) for real-time session costs
-- **Git Integration**: Automatic branch detection and status
-- **Configuration**: Hot-reloadable via `statusline.config.sh`
+- **Context Monitoring**: Uses Claude Code's `exceeds_200k_tokens` flag with clear messaging
+- **Cost Tracking**: Integrates with [ccusage](https://github.com/ryoppippi/ccusage) for accurate daily totals and current session costs
+- **Time Display**: Shows remaining session time from ccusage active block or fallback calculation
+- **Git Integration**: Automatic branch detection with code change indicators (+lines/-lines)
+- **Configuration**: Hot-reloadable via `cc-cleanline.config.sh`
 - **Output Format**: Consistent 3-line layout for reliable parsing
 
 ## Author
