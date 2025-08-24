@@ -67,6 +67,7 @@ LABEL_MODEL="LLM"                       # Model field label
 # SHOW_COST_INFO=true                     # Show estimated cost
 
 # Formatting Options
+SHOW_FULL_PATH=false                      # Show full directory path vs. short name
 # USE_ICONS=true                          # Use icons in display
 # USE_COLORS=true                         # Use colored output
 # SHOW_SEPARATORS=true                    # Show separators between sections

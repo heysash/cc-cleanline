@@ -24,8 +24,13 @@ session_id=$(echo "$input" | jq -r '.session_id')
 # Get token status from Claude Code input
 exceeds_200k_tokens=$(echo "$input" | jq -r '.exceeds_200k_tokens // false')
 
-# Use full directory path instead of just basename
-dir_path="$current_dir"
+# Format directory path based on configuration
+if [ "$SHOW_FULL_PATH" = true ]; then
+    dir_path="$current_dir"
+else
+    # Show only the current directory name with ./
+    dir_path="./$(basename "$current_dir")"
+fi
 
 # Get git branch or show "no git repository" if not in repo
 if git rev-parse --git-dir >/dev/null 2>&1; then
