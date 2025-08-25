@@ -31,6 +31,7 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 📊 **Cost Tracking** - Accurate daily totals and session costs via ccusage integration  
 🔄 **Git Integration** - Branch detection with real uncommitted changes (+lines/-lines)  
 ⚡ **Session Tokens** - 5h Max Tokens tracking with Low/Medium/High thresholds  
+📈 **Context Window** - Shows token usage when `/context` command is executed  
 
 ## Architecture
 
@@ -123,12 +124,29 @@ Create `cc-cleanline.config.local` to override specific settings without affecti
 - **Icons**: Status indicators (●, ○, ⚠, ✓)  
 - **Labels**: Login status, context messages, model names
 - **Display**: Path format, cost visibility, feature toggles
+- **Context Window**: Token usage display options
 
 The local config only needs variables you want to change - all others use the defaults.
 
+#### Context Window Feature
+The Context Window feature displays token usage information (e.g., "12k/200k tokens (6%)") after you run the `/context` command in Claude Code. Key points:
+
+- **Manual Update**: Token counts only update when you execute `/context` again
+- **No Auto-Refresh**: The display shows the last captured state, not real-time usage
+- **Clean Default**: No placeholder symbols shown when context data unavailable
+- **Configurable**: Can be enabled/disabled via `SHOW_CONTEXT_WINDOW` setting
+
 ## Output Examples
 
-**Active development session:**
+**Active development session (with context data):**
+
+```text
+● git branch main (+15/-3) ▶ ./project
+● Logged-In ★ LLM Opus 4.1 12k/200k tokens (6%) ⏱ Next Session 2h 43m  
+  ● 5h Max Tokens Low ⚡API Costs Included
+```
+
+**Active development session (without context data):**
 
 ```text
 ● git branch main (+15/-3) ▶ ./project

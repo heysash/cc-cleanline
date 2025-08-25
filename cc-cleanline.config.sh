@@ -75,6 +75,12 @@ SHOW_FULL_PATH=false                      # Show full directory path vs. short n
 SHOW_API_COSTS_WHEN_INCLUDED=false        # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
 SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
 
+# Context Window Display Options
+SHOW_CONTEXT_WINDOW=true                  # Show context window usage when available
+SHOW_CONTEXT_HINT=false                   # Show hint icon when context data not available (disabled by default for clean look)
+CONTEXT_HINT_ICON=""                      # Icon to show when context data not available (empty = no hint)
+CONTEXT_CACHE_TTL=30                      # Cache context data for 30 seconds (in seconds)
+
 # Update Settings
 # UPDATE_INTERVAL=30                      # Update interval in seconds
 

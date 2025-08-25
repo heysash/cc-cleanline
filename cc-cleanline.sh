@@ -48,6 +48,7 @@ input=$(cat)
 current_dir=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
 session_id=$(echo "$input" | jq -r '.session_id')
+transcript_path=$(echo "$input" | jq -r '.transcript_path // ""')
 total_cost_usd=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
 
 # Check login status
@@ -90,12 +91,23 @@ if [ -n "$session_token_result" ]; then
     session_token_color=$(echo "$session_token_result" | cut -d'|' -f2)
 fi
 
+# Get context window status (pass model color)
+context_window_result=$(get_context_window_status "$transcript_path" "$session_id" "$model_color")
+if [ -n "$context_window_result" ]; then
+    context_window_status=$(echo "$context_window_result" | cut -d'|' -f1)
+    context_window_color=$(echo "$context_window_result" | cut -d'|' -f2)
+else
+    context_window_status=""
+    context_window_color=""
+fi
+
 # Format cost display
 cost_display=$(format_cost_display "$is_logged_in" "$today_total_cost" "$current_session_cost" "$total_cost_usd" "$session_token_status")
 
 # Output the formatted status line
 output_status_line "$git_status" "$git_color" "$dir_path" \
     "$login_status" "$login_color" "$model_info" "$model_color" \
+    "$context_window_status" "$context_window_color" \
     "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
 
 # Trigger Happy Mode easter eggs if enabled

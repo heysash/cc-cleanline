@@ -83,18 +83,27 @@ output_status_line() {
     local login_color="$5"
     local model_info="$6"
     local model_color="$7"
-    local time_left="$8"
-    local cost_display="$9"
-    local session_token_status="${10}"
-    local session_token_color="${11}"
+    local context_window_status="$8"
+    local context_window_color="$9"
+    local time_left="${10}"
+    local cost_display="${11}"
+    local session_token_status="${12}"
+    local session_token_color="${13}"
     
     # Output first line: git status and directory
     printf "${git_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}▶ %s${COLOR_RESET}\n" \
         "$git_status" "$dir_path"
     
-    # Output second line: login status, model info, and time
-    printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
-        "$login_status" "$model_info" "$time_left"
+    # Output second line: login status, model info, context window (if available), and time
+    if [ -n "$context_window_status" ]; then
+        # Include context window status
+        printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${context_window_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
+            "$login_status" "$model_info" "$context_window_status" "$time_left"
+    else
+        # No context window status
+        printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
+            "$login_status" "$model_info" "$time_left"
+    fi
     
     # Output third line: cost display with token status
     if [ -n "$session_token_status" ] && [ -n "$session_token_color" ]; then
