@@ -32,6 +32,29 @@ This isn't just about looking good (though it does) - it's about cognitive clari
 🔄 **Git Integration** - Branch detection with real uncommitted changes (+lines/-lines)  
 ⚡ **Session Tokens** - 5h Max Tokens tracking with Low/Medium/High thresholds  
 
+## Architecture
+
+CC CleanLine follows a **modular architecture** designed for maintainability and LLM compatibility. The main script (`cc-cleanline.sh`) acts as an orchestrator that loads and coordinates specialized modules:
+
+### Core Modules
+
+- **`lib/git-status.sh`** (61 lines) - Git repository detection and branch analysis
+- **`lib/cost-tracking.sh`** (179 lines) - Token usage and API cost calculation via ccusage integration  
+- **`lib/model-detection.sh`** (52 lines) - Claude model identification and color mapping
+- **`lib/display-formatter.sh`** (112 lines) - Status line output formatting and color application
+- **`lib/happy-mode-integration.sh`** (44 lines) - Easter egg system integration
+
+### Design Philosophy
+
+Each module has a **single responsibility** and stays under 180 lines for optimal LLM processing. The modular design enables:
+
+- **Isolated testing** of individual components
+- **Easier maintenance** with clear boundaries
+- **Flexible customization** without affecting core functionality
+- **Hot-swappable modules** for future extensions
+
+The main script loads all modules at startup and coordinates their execution based on the JSON input from Claude Code.
+
 ## Installation
 
 1. Clone this repository:
@@ -47,7 +70,9 @@ This isn't just about looking good (though it does) - it's about cognitive clari
    chmod +x cc-cleanline.sh
    ```
 
-3. Configure Claude Code (see Configuration section)
+3. **Important**: Ensure the `lib/` directory stays intact with all module files - the script requires all modules for proper functionality.
+
+4. Configure Claude Code (see Configuration section)
 
 ## Configuration
 
@@ -143,12 +168,23 @@ The local config only needs variables you want to change - all others use the de
 
 ## Technical Details
 
-- **Session Token Tracking**: Monitors 5h session token usage with Low/Medium/High thresholds and model-matched colors
-- **Cost Tracking**: Integrates with [ccusage](https://github.com/ryoppippi/ccusage) for accurate daily totals and current session costs with improved precision using jq
-- **Time Display**: Shows remaining session time from ccusage active block or fallback calculation
-- **Git Integration**: Automatic branch detection with real uncommitted changes only (+lines/-lines)
-- **Configuration**: Hot-reloadable via `cc-cleanline.config.sh` with cost display options
-- **Output Format**: Consistent 3-line layout for reliable parsing
+### Modular Architecture
+- **Main Script**: `cc-cleanline.sh` (101 lines) orchestrates module loading and execution
+- **Module Loading**: Automatic discovery and sourcing of all `lib/*.sh` files at startup
+- **Configuration**: Two-tier system with base config and local overrides, loaded before modules
+- **Error Handling**: Graceful fallbacks when optional modules or dependencies are missing
+
+### Core Functionality
+- **Session Token Tracking**: `lib/cost-tracking.sh` monitors 5h session usage with model-matched color thresholds
+- **Cost Integration**: Seamless [ccusage](https://github.com/ryoppippi/ccusage) integration with precision jq calculations
+- **Git Analysis**: `lib/git-status.sh` provides intelligent branch detection with real change tracking (+/-lines)
+- **Model Detection**: `lib/model-detection.sh` identifies Claude models with automatic color mapping
+- **Display Coordination**: `lib/display-formatter.sh` ensures consistent 3-line output format
+
+### Happy Mode System
+- **Modular Integration**: `lib/happy-mode-integration.sh` cleanly separates easter egg functionality
+- **Standalone Tools**: `happy-mode.sh` and `happy-mode-tools.sh` provide complete easter egg experience
+- **Configuration Hooks**: Seamlessly activated via configuration without main script modification
 
 ## Experimental Features 🐰
 
