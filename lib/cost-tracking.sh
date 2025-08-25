@@ -42,7 +42,7 @@ get_today_total_cost() {
             local total_cost
             total_cost=$(echo "$usage_json" | jq --arg today "$today_date" '
                 [.blocks[] 
-                | select(.startTime | startswith($today)) 
+                | select((.startTime | startswith($today)) or (.endTime | startswith($today))) 
                 | select(.isGap == false) 
                 | .costUSD] | add | . * 100 | floor / 100' 2>/dev/null)
             
