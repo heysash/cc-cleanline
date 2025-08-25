@@ -151,6 +151,8 @@ get_time_surprise() {
     
     # Special late night messages
     local hour=$(date +%H)
+    # Remove leading zero to avoid octal interpretation
+    hour=$((10#$hour))
     if [[ $hour -ge 2 && $hour -le 5 ]]; then
         if hits_chance 10; then
             echo "🦉 Night owl detected. Code responsibly!"
