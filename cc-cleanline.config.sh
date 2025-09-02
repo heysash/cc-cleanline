@@ -83,10 +83,18 @@ CONTEXT_CACHE_TTL=30                      # Cache context data for 30 seconds (i
 
 # Context Metrics Display Options (New Token-Based Implementation)
 SHOW_CONTEXT_LENGTH=true                  # Show absolute token count (e.g., "Ctx: 18.6k")
-SHOW_CONTEXT_PERCENTAGE=false             # Show percentage of 200k limit (e.g., "Ctx: 9.3%")
+SHOW_CONTEXT_PERCENTAGE=true              # Show percentage of 200k limit (e.g., "Ctx: 9.3%")
 SHOW_CONTEXT_PERCENTAGE_USABLE=true       # Show percentage of 160k usable limit (e.g., "Ctx(u): 11.6%")
 CONTEXT_LENGTH_FORMAT="short"             # Format for context length: "short" (18.6k) or "full" (18600)
 CONTEXT_METRICS_CACHE_TTL=5               # Cache context metrics for 5 seconds (in seconds)
+
+# Model & Token Display Options (Flexible Display)
+SHOW_MODEL_NAME=true                      # Show model name (e.g., "Sonnet 4")
+SHOW_TOKEN_ABSOLUTE=true                  # Show absolute token count (e.g., "18.6k/200k")
+SHOW_TOKEN_PERCENT_TOTAL=true             # Show percentage of 200k total (e.g., "9.3%")
+SHOW_TOKEN_PERCENT_USABLE=true            # Show percentage of 160k usable (e.g., "11.5%")
+SHOW_TOKEN_LABEL_USED=true                # Show "used" label after absolute tokens
+SHOW_TOKEN_LABEL_OF=true                  # Show "of 160k" label with usable percentage
 
 # Update Settings
 # UPDATE_INTERVAL=30                      # Update interval in seconds

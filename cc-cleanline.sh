@@ -106,11 +106,12 @@ else
     context_window_color=""
 fi
 
-# Get context metrics status (new token-based implementation)
-context_metrics_result=$(get_context_metrics_status "$transcript_path" "$session_id" "$model_color" 2>/dev/null)
+# Get context metrics status with flexible model/token display
+context_metrics_result=$(get_context_metrics_status "$transcript_path" "$session_id" "$model_color" "$model_name" 2>/dev/null)
 if [ -n "$context_metrics_result" ]; then
-    context_metrics_status=$(echo "$context_metrics_result" | cut -d'|' -f1)
-    context_metrics_color=$(echo "$context_metrics_result" | cut -d'|' -f2)
+    # Parse: extract everything except the last field (which is the color)
+    context_metrics_status=$(echo "$context_metrics_result" | rev | cut -d'|' -f2- | rev)
+    context_metrics_color=$(echo "$context_metrics_result" | rev | cut -d'|' -f1 | rev)
 else
     context_metrics_status=""
     context_metrics_color=""
@@ -131,11 +132,20 @@ else
     final_context_color=""
 fi
 
-# Output the formatted status line
-output_status_line "$git_status" "$git_color" "$dir_path" \
-    "$login_status" "$login_color" "$model_info" "$model_color" \
-    "$final_context_status" "$final_context_color" \
-    "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
+# Output the formatted status line (use flexible display or fallback to separate model info)
+if [ -n "$context_metrics_status" ]; then
+    # Use new flexible display (includes model + token info)
+    output_status_line "$git_status" "$git_color" "$dir_path" \
+        "$login_status" "$login_color" "" "" \
+        "$context_metrics_status" "$context_metrics_color" \
+        "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
+else
+    # Fallback to old display with separate model info
+    output_status_line "$git_status" "$git_color" "$dir_path" \
+        "$login_status" "$login_color" "$model_info" "$model_color" \
+        "$final_context_status" "$final_context_color" \
+        "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
+fi
 
 # Trigger Happy Mode easter eggs if enabled
 trigger_happy_mode_context "$time_remaining"

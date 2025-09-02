@@ -167,11 +167,101 @@ format_context_percentage_usable() {
     echo "Ctx(u): ${percentage}%"
 }
 
-# Main function to get formatted context status
+# Format flexible model and token display
+format_flexible_display() {
+    local context_length="$1"
+    local model_name="$2"
+    local model_color="$3"
+    
+    # Build display parts
+    local display_parts=()
+    
+    # Model name part
+    if [ "${SHOW_MODEL_NAME:-true}" = true ] && [ -n "$model_name" ] && [ "$model_name" != "null" ]; then
+        display_parts+=("$model_name")
+    fi
+    
+    # Token group parts
+    local token_group=""
+    
+    # Absolute token count
+    if [ "${SHOW_TOKEN_ABSOLUTE:-true}" = true ] && [ "$context_length" -gt 0 ]; then
+        local formatted_current formatted_total
+        formatted_current=$(format_tokens "$context_length")
+        formatted_total="200k"  # Always show as 200k for consistency
+        token_group="${formatted_current}/${formatted_total}"
+        
+        # Add "used" label if enabled and appropriate
+        if [ "${SHOW_TOKEN_LABEL_USED:-true}" = true ]; then
+            # Add "used" if percentage follows OR if it's the end of this group
+            if [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] || [ "${SHOW_TOKEN_PERCENT_USABLE:-true}" = false ]; then
+                token_group="${token_group} used"
+            fi
+        fi
+        
+        # Add percentage of 200k if enabled (without "of 200k" when following absolute)
+        if [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] && [ "$context_length" -gt 0 ]; then
+            local percentage
+            percentage=$(echo "$context_length" | awk '{printf "%.1f", ($1/200000)*100}')
+            if [ "$(echo "$percentage > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
+                percentage="100.0"
+            fi
+            token_group="${token_group} ${percentage}%"
+        fi
+    elif [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] && [ "$context_length" -gt 0 ]; then
+        # Only percentage of 200k (without absolute tokens)
+        local percentage
+        percentage=$(echo "$context_length" | awk '{printf "%.1f", ($1/200000)*100}')
+        if [ "$(echo "$percentage > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
+            percentage="100.0"
+        fi
+        token_group="${percentage}% of 200k"
+    fi
+    
+    # Add token group if not empty
+    if [ -n "$token_group" ]; then
+        display_parts+=("$token_group")
+    fi
+    
+    # Percentage of 160k usable (separate group)
+    if [ "${SHOW_TOKEN_PERCENT_USABLE:-true}" = true ] && [ "$context_length" -gt 0 ]; then
+        local percentage_usable
+        percentage_usable=$(echo "$context_length" | awk '{printf "%.1f", ($1/160000)*100}')
+        if [ "$(echo "$percentage_usable > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
+            percentage_usable="100.0"
+        fi
+        
+        local usable_part="${percentage_usable}%"
+        if [ "${SHOW_TOKEN_LABEL_OF:-true}" = true ]; then
+            usable_part="${usable_part} of 160k"
+        fi
+        display_parts+=("$usable_part")
+    fi
+    
+    # Join display parts with " | "
+    local final_display=""
+    for part in "${display_parts[@]}"; do
+        if [ -z "$final_display" ]; then
+            final_display="$part"
+        else
+            final_display="$final_display | $part"
+        fi
+    done
+    
+    # Return formatted result with pipe separator for color
+    if [ -n "$final_display" ]; then
+        echo "${final_display}|${model_color}"
+    else
+        echo ""
+    fi
+}
+
+# Main function to get formatted context status (legacy compatibility)
 get_context_metrics_status() {
     local transcript_path="$1"
     local session_id="$2"
     local model_color="$3"
+    local model_name="${4:-}"
     
     # Parse metrics from JSONL
     local metrics
@@ -181,7 +271,13 @@ get_context_metrics_status() {
     local context_length
     context_length=$(echo "$metrics" | cut -d'|' -f4)
     
-    # Build display based on config
+    # Use flexible display if model name provided
+    if [ -n "$model_name" ] && [ "$model_name" != "null" ]; then
+        format_flexible_display "$context_length" "$model_name" "$model_color"
+        return
+    fi
+    
+    # Legacy display logic for backwards compatibility
     local display_parts=()
     
     if [ "${SHOW_CONTEXT_LENGTH:-false}" = true ]; then
@@ -226,4 +322,5 @@ export -f format_tokens 2>/dev/null || true
 export -f format_context_length 2>/dev/null || true
 export -f format_context_percentage 2>/dev/null || true
 export -f format_context_percentage_usable 2>/dev/null || true
+export -f format_flexible_display 2>/dev/null || true
 export -f get_context_metrics_status 2>/dev/null || true
