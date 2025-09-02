@@ -91,23 +91,50 @@ if [ -n "$session_token_result" ]; then
     session_token_color=$(echo "$session_token_result" | cut -d'|' -f2)
 fi
 
-# Get context window status (pass model color)
-context_window_result=$(get_context_window_status "$transcript_path" "$session_id" "$model_color")
-if [ -n "$context_window_result" ]; then
-    context_window_status=$(echo "$context_window_result" | cut -d'|' -f1)
-    context_window_color=$(echo "$context_window_result" | cut -d'|' -f2)
+# Get context window status (legacy - pass model color)
+if [ "${SHOW_CONTEXT_WINDOW:-false}" = true ]; then
+    context_window_result=$(get_context_window_status "$transcript_path" "$session_id" "$model_color")
+    if [ -n "$context_window_result" ]; then
+        context_window_status=$(echo "$context_window_result" | cut -d'|' -f1)
+        context_window_color=$(echo "$context_window_result" | cut -d'|' -f2)
+    else
+        context_window_status=""
+        context_window_color=""
+    fi
 else
     context_window_status=""
     context_window_color=""
 fi
 
+# Get context metrics status (new token-based implementation)
+context_metrics_result=$(get_context_metrics_status "$transcript_path" "$session_id" "$model_color" 2>/dev/null)
+if [ -n "$context_metrics_result" ]; then
+    context_metrics_status=$(echo "$context_metrics_result" | cut -d'|' -f1)
+    context_metrics_color=$(echo "$context_metrics_result" | cut -d'|' -f2)
+else
+    context_metrics_status=""
+    context_metrics_color=""
+fi
+
 # Format cost display
 cost_display=$(format_cost_display "$is_logged_in" "$today_total_cost" "$current_session_cost" "$total_cost_usd" "$session_token_status")
+
+# Determine which context display to use (prefer new metrics over legacy)
+if [ -n "$context_metrics_status" ]; then
+    final_context_status="$context_metrics_status"
+    final_context_color="$context_metrics_color"
+elif [ -n "$context_window_status" ]; then
+    final_context_status="$context_window_status"
+    final_context_color="$context_window_color"
+else
+    final_context_status=""
+    final_context_color=""
+fi
 
 # Output the formatted status line
 output_status_line "$git_status" "$git_color" "$dir_path" \
     "$login_status" "$login_color" "$model_info" "$model_color" \
-    "$context_window_status" "$context_window_color" \
+    "$final_context_status" "$final_context_color" \
     "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
 
 # Trigger Happy Mode easter eggs if enabled
