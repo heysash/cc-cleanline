@@ -108,64 +108,6 @@ format_tokens() {
     fi
 }
 
-# Format context length display
-format_context_length() {
-    local context_length="$1"
-    local format="${CONTEXT_LENGTH_FORMAT:-short}"
-    
-    if [ "$context_length" -eq 0 ]; then
-        echo ""
-        return
-    fi
-    
-    if [ "$format" = "full" ]; then
-        echo "Ctx: $context_length"
-    else
-        local formatted
-        formatted=$(format_tokens "$context_length")
-        echo "Ctx: ${formatted}"
-    fi
-}
-
-# Format context percentage (of 200k limit)
-format_context_percentage() {
-    local context_length="$1"
-    
-    if [ "$context_length" -eq 0 ]; then
-        echo ""
-        return
-    fi
-    
-    local percentage
-    percentage=$(echo "$context_length" | awk '{printf "%.1f", ($1/200000)*100}')
-    
-    # Cap at 100%
-    if [ "$(echo "$percentage > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
-        percentage="100.0"
-    fi
-    
-    echo "Ctx: ${percentage}%"
-}
-
-# Format context percentage usable (of 160k limit before auto-compact)
-format_context_percentage_usable() {
-    local context_length="$1"
-    
-    if [ "$context_length" -eq 0 ]; then
-        echo ""
-        return
-    fi
-    
-    local percentage
-    percentage=$(echo "$context_length" | awk '{printf "%.1f", ($1/160000)*100}')
-    
-    # Cap at 100%
-    if [ "$(echo "$percentage > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
-        percentage="100.0"
-    fi
-    
-    echo "Ctx(u): ${percentage}%"
-}
 
 # Format flexible model and token display
 format_flexible_display() {
@@ -239,7 +181,7 @@ format_flexible_display() {
     fi
 }
 
-# Main function to get formatted context status (legacy compatibility)
+# Main function to get formatted context status using flexible display
 get_context_metrics_status() {
     local transcript_path="$1"
     local session_id="$2"
@@ -254,56 +196,12 @@ get_context_metrics_status() {
     local context_length
     context_length=$(echo "$metrics" | cut -d'|' -f4)
     
-    # Use flexible display if model name provided
-    if [ -n "$model_name" ] && [ "$model_name" != "null" ]; then
-        format_flexible_display "$context_length" "$model_name" "$model_color"
-        return
-    fi
-    
-    # Legacy display logic for backwards compatibility
-    local display_parts=()
-    
-    if [ "${SHOW_CONTEXT_LENGTH:-false}" = true ]; then
-        local ctx_display
-        ctx_display=$(format_context_length "$context_length")
-        [ -n "$ctx_display" ] && display_parts+=("$ctx_display")
-    fi
-    
-    if [ "${SHOW_CONTEXT_PERCENTAGE:-false}" = true ]; then
-        local ctx_pct_display
-        ctx_pct_display=$(format_context_percentage "$context_length")
-        [ -n "$ctx_pct_display" ] && display_parts+=("$ctx_pct_display")
-    fi
-    
-    if [ "${SHOW_CONTEXT_PERCENTAGE_USABLE:-true}" = true ]; then
-        local ctx_pct_usable_display
-        ctx_pct_usable_display=$(format_context_percentage_usable "$context_length")
-        [ -n "$ctx_pct_usable_display" ] && display_parts+=("$ctx_pct_usable_display")
-    fi
-    
-    # Join display parts with space
-    local final_display=""
-    for part in "${display_parts[@]}"; do
-        if [ -z "$final_display" ]; then
-            final_display="$part"
-        else
-            final_display="$final_display $part"
-        fi
-    done
-    
-    # Return formatted result with pipe separator for color
-    if [ -n "$final_display" ]; then
-        echo "${final_display}|${model_color}"
-    else
-        echo ""
-    fi
+    # Use flexible display system
+    format_flexible_display "$context_length" "$model_name" "$model_color"
 }
 
 # Export functions for use by main script
 export -f parse_jsonl_for_context 2>/dev/null || true
 export -f format_tokens 2>/dev/null || true
-export -f format_context_length 2>/dev/null || true
-export -f format_context_percentage 2>/dev/null || true
-export -f format_context_percentage_usable 2>/dev/null || true
 export -f format_flexible_display 2>/dev/null || true
 export -f get_context_metrics_status 2>/dev/null || true
