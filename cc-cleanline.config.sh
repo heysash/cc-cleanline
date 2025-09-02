@@ -60,7 +60,7 @@ LABEL_MODEL="LLM"                       # Model field label
 
 # Feature Toggles
 # SHOW_USER_STATUS=true                   # Show user login status
-# SHOW_CONTEXT_STATUS=true                # Show context window status
+# SHOW_CONTEXT_STATUS=true                # Show context status
 # SHOW_MODEL_INFO=true                    # Show current model
 # SHOW_TOKEN_COUNT=true                   # Show token usage
 # SHOW_COST_INFO=true                     # Show estimated cost
@@ -75,26 +75,26 @@ SHOW_FULL_PATH=false                      # Show full directory path vs. short n
 SHOW_API_COSTS_WHEN_INCLUDED=false        # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
 SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
 
-# Context Window Display Options (Legacy - for old pattern matching)
-SHOW_CONTEXT_WINDOW=false                 # Show context window usage from /context command (legacy method)
+# Context Window Display Options (Legacy - kept for backwards compatibility)
+SHOW_CONTEXT_WINDOW=false                 # Show context window usage from /context command (legacy pattern matching method)
 SHOW_CONTEXT_HINT=false                   # Show hint icon when context data not available (disabled by default for clean look)
 CONTEXT_HINT_ICON=""                      # Icon to show when context data not available (empty = no hint)
 CONTEXT_CACHE_TTL=30                      # Cache context data for 30 seconds (in seconds)
 
-# Context Metrics Display Options (New Token-Based Implementation)
+# Context Metrics Display Options (New Token-Based Implementation - calculates from JSONL transcript)
 SHOW_CONTEXT_LENGTH=true                  # Show absolute token count (e.g., "Ctx: 18.6k")
 SHOW_CONTEXT_PERCENTAGE=true              # Show percentage of 200k limit (e.g., "Ctx: 9.3%")
 SHOW_CONTEXT_PERCENTAGE_USABLE=true       # Show percentage of 160k usable limit (e.g., "Ctx(u): 11.6%")
 CONTEXT_LENGTH_FORMAT="short"             # Format for context length: "short" (18.6k) or "full" (18600)
 CONTEXT_METRICS_CACHE_TTL=5               # Cache context metrics for 5 seconds (in seconds)
 
-# Model & Token Display Options (Flexible Display)
+# Model & Token Display Options (Flexible Display System - combines model name with token metrics)
 SHOW_MODEL_NAME=true                      # Show model name (e.g., "Sonnet 4")
-SHOW_TOKEN_ABSOLUTE=true                  # Show absolute token count (e.g., "18.6k/200k")
-SHOW_TOKEN_PERCENT_TOTAL=true             # Show percentage of 200k total (e.g., "9.3%")
-SHOW_TOKEN_PERCENT_USABLE=true            # Show percentage of 160k usable (e.g., "11.5%")
-SHOW_TOKEN_LABEL_USED=true                # Show "used" label after absolute tokens
-SHOW_TOKEN_LABEL_OF=true                  # Show "of 160k" label with usable percentage
+SHOW_TOKEN_ABSOLUTE=true                  # Show absolute token count (simplified: "59.0k" or extended: "59.0k/200k" if no percentages)
+SHOW_TOKEN_PERCENT_TOTAL=true             # Show percentage of 200k total (simplified format: "29.5% 200k")
+SHOW_TOKEN_PERCENT_USABLE=true            # Show percentage of 160k usable limit (simplified format: "36.9% 160k")
+# Note: 160k is Claude Code's compression trigger point - when context reaches this limit,
+# Claude Code automatically compresses the chat history to create a new context window
 
 # Update Settings
 # UPDATE_INTERVAL=30                      # Update interval in seconds

@@ -181,61 +181,44 @@ format_flexible_display() {
         display_parts+=("$model_name")
     fi
     
-    # Token group parts
-    local token_group=""
+    # Check if any percentage display is enabled
+    local show_any_percentage=false
+    if [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] || [ "${SHOW_TOKEN_PERCENT_USABLE:-true}" = true ]; then
+        show_any_percentage=true
+    fi
     
-    # Absolute token count
+    # Token count part - simplified or extended format
     if [ "${SHOW_TOKEN_ABSOLUTE:-true}" = true ] && [ "$context_length" -gt 0 ]; then
-        local formatted_current formatted_total
+        local formatted_current
         formatted_current=$(format_tokens "$context_length")
-        formatted_total="200k"  # Always show as 200k for consistency
-        token_group="${formatted_current}/${formatted_total}"
         
-        # Add "used" label if enabled and appropriate
-        if [ "${SHOW_TOKEN_LABEL_USED:-true}" = true ]; then
-            # Add "used" if percentage follows OR if it's the end of this group
-            if [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] || [ "${SHOW_TOKEN_PERCENT_USABLE:-true}" = false ]; then
-                token_group="${token_group} used"
-            fi
+        if [ "$show_any_percentage" = true ]; then
+            # Simplified format when percentages are shown: just "59.0k"
+            display_parts+=("$formatted_current")
+        else
+            # Extended format when no percentages: "59.0k/200k"
+            display_parts+=("${formatted_current}/200k")
         fi
-        
-        # Add percentage of 200k if enabled (without "of 200k" when following absolute)
-        if [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] && [ "$context_length" -gt 0 ]; then
-            local percentage
-            percentage=$(echo "$context_length" | awk '{printf "%.1f", ($1/200000)*100}')
-            if [ "$(echo "$percentage > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
-                percentage="100.0"
-            fi
-            token_group="${token_group} ${percentage}%"
-        fi
-    elif [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] && [ "$context_length" -gt 0 ]; then
-        # Only percentage of 200k (without absolute tokens)
+    fi
+    
+    # 200k percentage part (simplified format: "29.5% 200k")
+    if [ "${SHOW_TOKEN_PERCENT_TOTAL:-true}" = true ] && [ "$context_length" -gt 0 ]; then
         local percentage
         percentage=$(echo "$context_length" | awk '{printf "%.1f", ($1/200000)*100}')
         if [ "$(echo "$percentage > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
             percentage="100.0"
         fi
-        token_group="${percentage}% of 200k"
+        display_parts+=("${percentage}% 200k")
     fi
     
-    # Add token group if not empty
-    if [ -n "$token_group" ]; then
-        display_parts+=("$token_group")
-    fi
-    
-    # Percentage of 160k usable (separate group)
+    # 160k percentage part (simplified format: "36.9% 160k")  
     if [ "${SHOW_TOKEN_PERCENT_USABLE:-true}" = true ] && [ "$context_length" -gt 0 ]; then
         local percentage_usable
         percentage_usable=$(echo "$context_length" | awk '{printf "%.1f", ($1/160000)*100}')
         if [ "$(echo "$percentage_usable > 100" | bc -l 2>/dev/null || echo "0")" = "1" ]; then
             percentage_usable="100.0"
         fi
-        
-        local usable_part="${percentage_usable}%"
-        if [ "${SHOW_TOKEN_LABEL_OF:-true}" = true ]; then
-            usable_part="${usable_part} of 160k"
-        fi
-        display_parts+=("$usable_part")
+        display_parts+=("${percentage_usable}% 160k")
     fi
     
     # Join display parts with " | "
