@@ -72,15 +72,11 @@ SHOW_FULL_PATH=false                      # Show full directory path vs. short n
 # SHOW_SEPARATORS=true                    # Show separators between sections
 
 # Cost Display Options
-SHOW_API_COSTS_WHEN_INCLUDED=false        # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
+SHOW_API_COSTS_WHEN_INCLUDED=true         # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
 SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
 
 
-# Context Metrics Display Options (New Token-Based Implementation - calculates from JSONL transcript)
-SHOW_CONTEXT_LENGTH=true                  # Show absolute token count (e.g., "Ctx: 18.6k")
-SHOW_CONTEXT_PERCENTAGE=true              # Show percentage of 200k limit (e.g., "Ctx: 9.3%")
-SHOW_CONTEXT_PERCENTAGE_USABLE=true       # Show percentage of 160k usable limit (e.g., "Ctx(u): 11.6%")
-CONTEXT_LENGTH_FORMAT="short"             # Format for context length: "short" (18.6k) or "full" (18600)
+# Context Metrics Cache Settings
 CONTEXT_METRICS_CACHE_TTL=5               # Cache context metrics for 5 seconds (in seconds)
 
 # Model & Token Display Options (Flexible Display System - combines model name with token metrics)
