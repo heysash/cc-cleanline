@@ -42,7 +42,7 @@ CC CleanLine follows a **modular architecture** designed for maintainability and
 - **`lib/git-status.sh`** (61 lines) - Git repository detection and branch analysis
 - **`lib/cost-tracking.sh`** (179 lines) - Token usage and API cost calculation via ccusage integration  
 - **`lib/model-detection.sh`** (52 lines) - Claude model identification and color mapping
-- **`lib/context-metrics.sh`** (325 lines) - Real-time token metrics calculated from JSONL transcript with flexible display
+- **`lib/context-metrics.sh`** (308 lines) - Real-time token metrics calculated from JSONL transcript with flexible display
 - **`lib/display-formatter.sh`** (119 lines) - Status line output formatting and color application
 - **`lib/happy-mode-integration.sh`** (44 lines) - Easter egg system integration
 
@@ -121,58 +121,65 @@ Create `cc-cleanline.config.local` to override specific settings without affecti
    ```
 
 #### Available Settings
+
 - **Colors**: Status states, model colors, UI elements
 - **Icons**: Status indicators (●, ○, ⚠, ✓)  
 - **Labels**: Login status, context messages, model names
 - **Display**: Path format, cost visibility, feature toggles
-- **Context Metrics**: Token usage display and calculation options
+- **Context Metrics**: Flexible display system with configurable token and percentage display
+- **Performance**: Cache settings and update intervals
 
 The local config only needs variables you want to change - all others use the defaults.
 
 #### Context Metrics System
-CC CleanLine features a sophisticated context metrics system that calculates token usage directly from the JSONL transcript file. This provides accurate, real-time token tracking without requiring manual commands.
+CC CleanLine features a sophisticated context metrics system that calculates token usage directly from Claude Code's JSONL transcript file. This provides accurate, real-time token tracking with intelligent caching and comprehensive display options.
 
 **Key Features:**
-- **Automatic Calculation**: Extracts token counts directly from JSONL transcript data
-- **Flexible Display**: Multiple display options and formats available
-- **Two Systems**: New metrics system (default) and legacy pattern matching for compatibility
-- **Intelligent Caching**: 5-second cache with file modification detection for performance
 
-**Display Options:**
+- **Real-time JSONL Parsing**: Extracts token counts directly from Claude Code's transcript data
+- **Intelligent Caching**: 5-second cache with file modification time detection for performance
+- **Token Aggregation**: Sums input, output, and cached tokens across the entire conversation
+- **Context Window Tracking**: Monitors the current context length from the most recent main chain entry
+- **Flexible Display Options**: Two display modes with extensive configuration
 
-*Context Metrics System:*
-- **Individual Components**: Enable specific metrics via separate settings
-  - `SHOW_CONTEXT_LENGTH=true` → "Ctx: 18.6k"  
-  - `SHOW_CONTEXT_PERCENTAGE=true` → "Ctx: 9.3%"
-  - `SHOW_CONTEXT_PERCENTAGE_USABLE=true` → "Ctx(u): 11.6%"
+**Display Systems:**
 
-*Flexible Display System (newest):*
-- **Integrated Model + Token Display**: Combines model name with token metrics
-- **Configurable Elements**: Control each display component individually
-  - `SHOW_MODEL_NAME=true` → Show "Sonnet 4" or "Opus 4.1"
-  - `SHOW_TOKEN_ABSOLUTE=true` → Show "59.0k" (simplified) or "59.0k/200k" (extended when no percentages)
-  - `SHOW_TOKEN_PERCENT_TOTAL=true` → Show "29.5% 200k" (percentage of 200k total limit)
-  - `SHOW_TOKEN_PERCENT_USABLE=true` → Show "36.9% 160k" (percentage of 160k compression trigger limit)
+*Primary: Flexible Model + Token Display*
 
-**160k Limit Explanation:** This represents Claude Code's compression trigger point. When the context window reaches ~160k tokens, Claude Code automatically compresses the chat history to create a new context window, allowing continued conversation within the 200k total limit.
+The default system combines model information with token metrics in a clean, configurable format:
 
-**Example Flexible Display Outputs:**
-```
-# All components enabled (simplified format):
+- `SHOW_MODEL_NAME=true` → Display model name ("Sonnet 4", "Opus 4.1")
+- `SHOW_TOKEN_ABSOLUTE=true` → Show current context tokens ("59.0k" or "59.0k/200k")
+- `SHOW_TOKEN_PERCENT_TOTAL=true` → Show percentage of 200k limit ("29.5% 200k")
+- `SHOW_TOKEN_PERCENT_USABLE=true` → Show percentage of 160k compression trigger ("36.9% 160k")
+
+
+**Understanding the 160k Compression Trigger:**
+This represents Claude Code's automatic context compression point. When the context window reaches approximately 160k tokens, Claude Code compresses the chat history to create space for continued conversation within the 200k total limit.
+
+**Display Format Examples:**
+
+```bash
+# Full flexible display (all components):
 "Sonnet 4 | 59.0k | 29.5% 200k | 36.9% 160k"
 
-# Only token count enabled (extended format):
+# Extended format (no percentages enabled):
 "Sonnet 4 | 59.0k/200k"
 
-# Only percentages enabled:
+# Percentage-only display:
 "Sonnet 4 | 29.5% 200k | 36.9% 160k"
+
 ```
 
-The system automatically detects when model information is available and uses the appropriate display mode.
+**Performance & Caching:**
+
+- 5-second intelligent cache with file modification detection
+- Efficient jq-based JSONL parsing with token aggregation
+- Automatic fallback when transcript data is unavailable
 
 ## Output Examples
 
-**Active development session (with simplified flexible display system):**
+**Active development session (flexible display system):**
 
 ```text
 ● git branch main (+15/-3) ▶ ./project
@@ -180,11 +187,11 @@ The system automatically detects when model information is available and uses th
   ● 5h Max Tokens Low ⚡API Costs Included
 ```
 
-**Active development session (legacy context display):**
+**Active development session (extended token format):**
 
 ```text
 ● git branch main (+15/-3) ▶ ./project
-● Logged-In ★ LLM Opus 4.1 12k/200k tokens (6%) ⏱ Next Session 2h 43m  
+● Logged-In ★ Opus 4.1 | 59.0k/200k ⏱ Next Session 2h 43m  
   ● 5h Max Tokens Low ⚡API Costs Included
 ```
 
@@ -200,7 +207,7 @@ The system automatically detects when model information is available and uses th
 
 ```text
 ○ no git repository ▶ ./scratch
-○ Not logged in ☆ LLM Sonnet 4 ⏱ Next Session 1h 15m
+○ Not logged in ☆ Sonnet 4 ⏱ Next Session 1h 15m
   ⚡API $3.80 (current session)
 ```
 
@@ -229,20 +236,22 @@ The system automatically detects when model information is available and uses th
 ## Technical Details
 
 ### Modular Architecture
-- **Main Script**: `cc-cleanline.sh` (150 lines) orchestrates module loading and execution
+- **Main Script**: `cc-cleanline.sh` (128 lines) orchestrates module loading and execution
 - **Module Loading**: Automatic discovery and sourcing of all `lib/*.sh` files at startup
 - **Configuration**: Two-tier system with base config and local overrides, loaded before modules
 - **Error Handling**: Graceful fallbacks when optional modules or dependencies are missing
 
 ### Core Functionality
-- **Context Metrics**: `lib/context-metrics.sh` calculates real-time token usage from JSONL transcript with flexible display system
-- **Session Token Tracking**: `lib/cost-tracking.sh` monitors 5h session usage with model-matched color thresholds
+
+- **Context Metrics**: `lib/context-metrics.sh` calculates real-time token usage from JSONL transcript with intelligent caching, file modification tracking, and flexible display system
+- **Session Token Tracking**: `lib/cost-tracking.sh` monitors 5h session usage with model-matched color thresholds  
 - **Cost Integration**: Seamless [ccusage](https://github.com/ryoppippi/ccusage) integration with precision jq calculations
 - **Git Analysis**: `lib/git-status.sh` provides intelligent branch detection with real change tracking (+/-lines)
 - **Model Detection**: `lib/model-detection.sh` identifies Claude models with automatic color mapping
 - **Display Coordination**: `lib/display-formatter.sh` ensures consistent 3-line output format
 
 ### Happy Mode System
+
 - **Modular Integration**: `lib/happy-mode-integration.sh` cleanly separates easter egg functionality
 - **Standalone Tools**: `happy-mode.sh` and `happy-mode-tools.sh` provide complete easter egg experience
 - **Configuration Hooks**: Seamlessly activated via configuration without main script modification
@@ -256,7 +265,7 @@ Some say there are hidden pathways in the configuration files, waiting for the t
 > *Follow the white rabbit...*  
 > *The rabbit hole goes deeper than you think.*
 
-For those who dare to explore beyond the clean facade, remember: not all features are documented, and not all documentation tells the whole truth. Sometimes the most delightful discoveries come from reading between the lines... or perhaps from a simple boolean that asks "What's this?" 
+For those who dare to explore beyond the clean facade, remember: not all features are documented, and not all documentation tells the whole truth. Sometimes the most delightful discoveries come from reading between the lines... or perhaps from a simple boolean that asks "What's this?"
 
 *The Matrix has CC CleanLine, and CC CleanLine has you.*
 
