@@ -140,12 +140,7 @@ CC CleanLine features a sophisticated context metrics system that calculates tok
 
 **Display Options:**
 
-*Legacy Context Window System (SHOW_CONTEXT_WINDOW):*
-- Simple token display from `/context` command pattern matching
-- Format: "12k/200k tokens (6%)"
-- Kept for backwards compatibility
-
-*New Context Metrics System (recommended):*
+*Context Metrics System:*
 - **Individual Components**: Enable specific metrics via separate settings
   - `SHOW_CONTEXT_LENGTH=true` → "Ctx: 18.6k"  
   - `SHOW_CONTEXT_PERCENTAGE=true` → "Ctx: 9.3%"
