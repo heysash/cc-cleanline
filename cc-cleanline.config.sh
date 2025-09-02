@@ -75,11 +75,18 @@ SHOW_FULL_PATH=false                      # Show full directory path vs. short n
 SHOW_API_COSTS_WHEN_INCLUDED=false        # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
 SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
 
-# Context Window Display Options
-SHOW_CONTEXT_WINDOW=true                  # Show context window usage when available
+# Context Window Display Options (Legacy - for old pattern matching)
+SHOW_CONTEXT_WINDOW=false                 # Show context window usage from /context command (legacy method)
 SHOW_CONTEXT_HINT=false                   # Show hint icon when context data not available (disabled by default for clean look)
 CONTEXT_HINT_ICON=""                      # Icon to show when context data not available (empty = no hint)
 CONTEXT_CACHE_TTL=30                      # Cache context data for 30 seconds (in seconds)
+
+# Context Metrics Display Options (New Token-Based Implementation)
+SHOW_CONTEXT_LENGTH=true                  # Show absolute token count (e.g., "Ctx: 18.6k")
+SHOW_CONTEXT_PERCENTAGE=false             # Show percentage of 200k limit (e.g., "Ctx: 9.3%")
+SHOW_CONTEXT_PERCENTAGE_USABLE=true       # Show percentage of 160k usable limit (e.g., "Ctx(u): 11.6%")
+CONTEXT_LENGTH_FORMAT="short"             # Format for context length: "short" (18.6k) or "full" (18600)
+CONTEXT_METRICS_CACHE_TTL=5               # Cache context metrics for 5 seconds (in seconds)
 
 # Update Settings
 # UPDATE_INTERVAL=30                      # Update interval in seconds
