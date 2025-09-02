@@ -19,3 +19,6 @@ cc-cleanline.config.sh.local
 
 # Test files
 test_*
+
+# Examples directory
+examples/
