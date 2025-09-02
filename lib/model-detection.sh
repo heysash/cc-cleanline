@@ -12,11 +12,11 @@ get_model_info() {
     # Determine model info based on model name
     if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
         model_display="Sonnet 4"
-        model_info="☆ ${LABEL_MODEL} ${model_display}"
+        model_info="☆${LABEL_MODEL} ${model_display}"
         model_color="$COLOR_SONNET"
     elif [[ "$model_name" == *"opus"* ]] || [[ "$model_name" == *"Opus"* ]]; then
         model_display="Opus 4.1"
-        model_info="★ ${LABEL_MODEL} ${model_display}"
+        model_info="★${LABEL_MODEL} ${model_display}"
         model_color="$COLOR_OPUS"
     else
         model_display="${model_name}"

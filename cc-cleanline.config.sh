@@ -60,7 +60,7 @@ LABEL_MODEL="LLM"                       # Model field label
 
 # Feature Toggles
 # SHOW_USER_STATUS=true                   # Show user login status
-# SHOW_CONTEXT_STATUS=true                # Show context window status
+# SHOW_CONTEXT_STATUS=true                # Show context status
 # SHOW_MODEL_INFO=true                    # Show current model
 # SHOW_TOKEN_COUNT=true                   # Show token usage
 # SHOW_COST_INFO=true                     # Show estimated cost
@@ -72,14 +72,20 @@ SHOW_FULL_PATH=false                      # Show full directory path vs. short n
 # SHOW_SEPARATORS=true                    # Show separators between sections
 
 # Cost Display Options
-SHOW_API_COSTS_WHEN_INCLUDED=false        # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
+SHOW_API_COSTS_WHEN_INCLUDED=true         # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
 SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
 
-# Context Window Display Options
-SHOW_CONTEXT_WINDOW=true                  # Show context window usage when available
-SHOW_CONTEXT_HINT=false                   # Show hint icon when context data not available (disabled by default for clean look)
-CONTEXT_HINT_ICON=""                      # Icon to show when context data not available (empty = no hint)
-CONTEXT_CACHE_TTL=30                      # Cache context data for 30 seconds (in seconds)
+
+# Context Metrics Cache Settings
+CONTEXT_METRICS_CACHE_TTL=5               # Cache context metrics for 5 seconds (in seconds)
+
+# Model & Token Display Options (Flexible Display System - combines model name with token metrics)
+SHOW_MODEL_NAME=true                      # Show model name (e.g., "Sonnet 4")
+SHOW_TOKEN_ABSOLUTE=true                  # Show absolute token count (simplified: "59.0k" or extended: "59.0k/200k" if no percentages)
+SHOW_TOKEN_PERCENT_TOTAL=true             # Show percentage of 200k total (simplified format: "29.5% 200k")
+SHOW_TOKEN_PERCENT_USABLE=true            # Show percentage of 160k usable limit (simplified format: "36.9% 160k")
+# Note: 160k is Claude Code's compression trigger point - when context reaches this limit,
+# Claude Code automatically compresses the chat history to create a new context window
 
 # Update Settings
 # UPDATE_INTERVAL=30                      # Update interval in seconds

@@ -96,13 +96,11 @@ output_status_line() {
     
     # Output second line: login status, model info, context window (if available), and time
     if [ -n "$context_window_status" ]; then
-        # Include context window status
-        printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${context_window_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
-            "$login_status" "$model_info" "$context_window_status" "$time_left"
+        # Include context window status - use echo to avoid printf format issues with %
+        echo -e "${login_color}${login_status}${COLOR_RESET} ${model_color}${model_info}${COLOR_RESET} ${context_window_color}${context_window_status}${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}${time_left}${COLOR_RESET}"
     else
         # No context window status
-        printf "${login_color}%s${COLOR_RESET} ${model_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" \
-            "$login_status" "$model_info" "$time_left"
+        echo -e "${login_color}${login_status}${COLOR_RESET} ${model_color}${model_info}${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}${time_left}${COLOR_RESET}"
     fi
     
     # Output third line: cost display with token status

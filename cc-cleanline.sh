@@ -91,24 +91,39 @@ if [ -n "$session_token_result" ]; then
     session_token_color=$(echo "$session_token_result" | cut -d'|' -f2)
 fi
 
-# Get context window status (pass model color)
-context_window_result=$(get_context_window_status "$transcript_path" "$session_id" "$model_color")
-if [ -n "$context_window_result" ]; then
-    context_window_status=$(echo "$context_window_result" | cut -d'|' -f1)
-    context_window_color=$(echo "$context_window_result" | cut -d'|' -f2)
+
+# Get context metrics status with flexible model/token display
+context_metrics_result=$(get_context_metrics_status "$transcript_path" "$session_id" "$model_color" "$model_name" 2>/dev/null)
+if [ -n "$context_metrics_result" ]; then
+    # Parse: extract everything except the last field (which is the color)
+    context_metrics_status=$(echo "$context_metrics_result" | rev | cut -d'|' -f2- | rev)
+    context_metrics_color=$(echo "$context_metrics_result" | rev | cut -d'|' -f1 | rev)
 else
-    context_window_status=""
-    context_window_color=""
+    context_metrics_status=""
+    context_metrics_color=""
 fi
 
 # Format cost display
 cost_display=$(format_cost_display "$is_logged_in" "$today_total_cost" "$current_session_cost" "$total_cost_usd" "$session_token_status")
 
-# Output the formatted status line
-output_status_line "$git_status" "$git_color" "$dir_path" \
-    "$login_status" "$login_color" "$model_info" "$model_color" \
-    "$context_window_status" "$context_window_color" \
-    "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
+# Set final context display from new metrics
+final_context_status="$context_metrics_status"
+final_context_color="$context_metrics_color"
+
+# Output the formatted status line (use flexible display or fallback to separate model info)
+if [ -n "$context_metrics_status" ]; then
+    # Use new flexible display (includes model + token info)
+    output_status_line "$git_status" "$git_color" "$dir_path" \
+        "$login_status" "$login_color" "" "" \
+        "$context_metrics_status" "$context_metrics_color" \
+        "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
+else
+    # Fallback to old display with separate model info
+    output_status_line "$git_status" "$git_color" "$dir_path" \
+        "$login_status" "$login_color" "$model_info" "$model_color" \
+        "$final_context_status" "$final_context_color" \
+        "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
+fi
 
 # Trigger Happy Mode easter eggs if enabled
 trigger_happy_mode_context "$time_remaining"
