@@ -54,27 +54,16 @@ LABEL_NOT_LOGGED_IN="Not logged in"     # User not logged in
 LABEL_MODEL="LLM"                       # Model field label
 
 # --------------------------------------------------------------------
-# DISPLAY SETTINGS (TODO)
+# DISPLAY SETTINGS
 # --------------------------------------------------------------------
 # Configure what information to show and how
 
-# Feature Toggles
-# SHOW_USER_STATUS=true                   # Show user login status
-# SHOW_CONTEXT_STATUS=true                # Show context status
-# SHOW_MODEL_INFO=true                    # Show current model
-# SHOW_TOKEN_COUNT=true                   # Show token usage
-# SHOW_COST_INFO=true                     # Show estimated cost
-
 # Formatting Options
 SHOW_FULL_PATH=false                      # Show full directory path vs. short name
-# USE_ICONS=true                          # Use icons in display
-# USE_COLORS=true                         # Use colored output
-# SHOW_SEPARATORS=true                    # Show separators between sections
 
 # Cost Display Options
 SHOW_API_COSTS_WHEN_INCLUDED=true         # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
 SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
-
 
 # Context Metrics Cache Settings
 CONTEXT_METRICS_CACHE_TTL=5               # Cache context metrics for 5 seconds (in seconds)
@@ -86,9 +75,6 @@ SHOW_TOKEN_PERCENT_TOTAL=true             # Show percentage of 200k total (simpl
 SHOW_TOKEN_PERCENT_USABLE=true            # Show percentage of 160k usable limit (simplified format: "36.9% 160k")
 # Note: 160k is Claude Code's compression trigger point - when context reaches this limit,
 # Claude Code automatically compresses the chat history to create a new context window
-
-# Update Settings
-# UPDATE_INTERVAL=30                      # Update interval in seconds
 
 # --------------------------------------------------------------------
 # HAPPY MODE SETTINGS (Easter Eggs for Bored Devs)
