@@ -273,10 +273,6 @@ For those who dare to explore beyond the clean facade, remember: not all feature
 
 **Hint for the sleepless coders:** The configuration holds more than colors and labels. Those who work past midnight might find unexpected companions in their status line. Easter eggs are not just for Sunday.
 
-## Author
-
-Created by [Sascha Rahn](https://github.com/heysash) • [heysash.com](https://heysash.com)
-
 ## License
 
 MIT License
