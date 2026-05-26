@@ -1,0 +1,42 @@
+{
+  "session_id": "88888888-8888-8888-8888-888888888888",
+  "transcript_path": "/tmp/test-output-style.jsonl",
+  "cwd": "/Users/test/projects/example",
+  "model": {
+    "id": "claude-opus-4-7",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/example",
+    "project_dir": "/Users/test/projects/example"
+  },
+  "context_window": {
+    "total_input_tokens": 88000,
+    "total_output_tokens": 2400,
+    "context_window_size": 200000,
+    "used_percentage": 45.2,
+    "remaining_percentage": 54.8
+  },
+  "cost": {
+    "total_cost_usd": 1.02,
+    "total_duration_ms": 480000,
+    "total_api_duration_ms": 72000,
+    "total_lines_added": 18,
+    "total_lines_removed": 6
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 38.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 12.0,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "Explanatory"
+  },
+  "version": "2.1.150"
+}

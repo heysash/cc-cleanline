@@ -1,37 +1,68 @@
 #!/usr/bin/env bash
-
 # ====================================================================
-# CC CleanLine - Local Configuration Override Example
+# CC CleanLine — local configuration override example
 # ====================================================================
-# This file shows how to override default configuration values.
-# 
-# USAGE:
-# 1. Copy this file to: cc-cleanline.config.local
-# 2. Uncomment and modify any values you want to change
-# 3. Your changes will override the defaults in cc-cleanline.config.sh
-# 
-# NOTE: The .local file is automatically ignored by git, so your
-# personal settings stay local and won't affect other users.
+# Copy this file to cc-cleanline.config.local and uncomment the lines
+# you want to change. Anything left commented out uses the defaults
+# from cc-cleanline.config.sh.
+#
+# The .local file is git-ignored, so personal settings stay local.
 # ====================================================================
 
-# Example: Change the active status color from green to blue
-# COLOR_ACTIVE_STATUS='\033[94m'  # Blue instead of default green
+# ---- Display toggles ------------------------------------------------
 
-# Example: Show full directory paths instead of just the current folder
+# Show the full absolute path instead of just ./dirname.
 # SHOW_FULL_PATH=true
 
-# Example: Hide API costs when logged in and included
-# SHOW_API_COSTS_WHEN_INCLUDED=false
+# Hide the absolute token count (only show the percentage).
+# SHOW_TOKEN_ABSOLUTE=false
 
-# Example: Use different icons
+# Hide the context-window percentage (only show the absolute count).
+# SHOW_TOKEN_PERCENT_TOTAL=false
+
+# Hide the effort badge (· / ·· / ··· / ···· / ▸max) next to the model.
+# SHOW_EFFORT_BADGE=false
+
+# Hide the ¹ᴹ badge for [1m] context-window variants.
+# SHOW_1M_BADGE=false
+
+# Hide the ⚠legacy hint for deprecated model IDs.
+# SHOW_LEGACY_MARKER=false
+
+# Suppress line 4 (worktree info) even when a worktree is active.
+# SHOW_WORKTREE_LINE=false
+
+# Suppress line 5 (output style / vim / PR) even when fields are set.
+# SHOW_EXTRAS_LINE=false
+
+# Append the Claude Code version (e.g. "v2.1.150") to line 5.
+# SHOW_VERSION=true
+
+# ---- Colors ---------------------------------------------------------
+
+# Switch the active-status colour from green to blue.
+# COLOR_ACTIVE_STATUS='\033[94m'
+
+# Use a different colour for the current Opus generation.
+# COLOR_OPUS='\033[38;5;208m'
+
+# ---- Icons ----------------------------------------------------------
+
 # ICON_ACTIVE="►"
 # ICON_INACTIVE="◯"
 
-# Example: Change model labels
-# LABEL_MODEL="Model"
+# ---- Happy Mode (easter eggs) ---------------------------------------
+# Enable with the helper:  ./happy-mode-tools.sh enable
+# Or set the flag directly here:
+# HAPPY_MODE="true"
 
-# ====================================================================
-# Available variables to override:
-# ====================================================================
-# All color, icon, label and display settings from cc-cleanline.config.sh
-# can be overridden here. Simply uncomment and set your preferred value.
+# Tune the chances (in %, decimals allowed). Defaults: 33 / 33 / 10.
+# HAPPY_MODE_MATRIX_CHANCE="33"
+# HAPPY_MODE_FORTUNE_CHANCE="33"
+# HAPPY_MODE_RAINBOW_CHANCE="10"
+
+# Minimum minutes between surprises. Default: 15.
+# HAPPY_MODE_COOLDOWN_MINUTES="15"
+
+# Disable time-based triggers (1337, midnight, etc.).
+# HAPPY_MODE_TIME_SURPRISES="false"

@@ -1,0 +1,50 @@
+{
+  "session_id": "66666666-6666-6666-6666-666666666666",
+  "transcript_path": "/tmp/test-worktree.jsonl",
+  "cwd": "/Users/test/projects/example/.claude/worktrees/curious-feature-abc123",
+  "model": {
+    "id": "claude-opus-4-7",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/example/.claude/worktrees/curious-feature-abc123",
+    "project_dir": "/Users/test/projects/example",
+    "git_worktree": "curious-feature-abc123"
+  },
+  "worktree": {
+    "name": "curious-feature-abc123",
+    "path": "/Users/test/projects/example/.claude/worktrees/curious-feature-abc123",
+    "branch": "claude/curious-feature-abc123",
+    "original_cwd": "/Users/test/projects/example",
+    "original_branch": "main"
+  },
+  "context_window": {
+    "total_input_tokens": 42000,
+    "total_output_tokens": 950,
+    "context_window_size": 200000,
+    "used_percentage": 21.5,
+    "remaining_percentage": 78.5
+  },
+  "cost": {
+    "total_cost_usd": 0.38,
+    "total_duration_ms": 280000,
+    "total_api_duration_ms": 38000,
+    "total_lines_added": 8,
+    "total_lines_removed": 2
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 19.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 7.0,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "version": "2.1.150"
+}

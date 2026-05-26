@@ -1,53 +1,109 @@
 #!/bin/bash
-# Model detection module for CC CleanLine
-# Handles model name detection, formatting, and color assignment
+# Model detection module for CC CleanLine.
+# Pattern-matches Anthropic model IDs (current + legacy + deprecated) and produces
+# the formatted display string with icon, colour, 1M-context badge, effort badge,
+# and optional legacy marker.
 
-# Function to get model information
-get_model_info() {
-    local model_name="$1"
-    local model_display=""
-    local model_info=""
-    local model_color=""
-    
-    # Determine model info based on model name
-    if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
-        model_display="Sonnet 4"
-        model_info="☆${LABEL_MODEL} ${model_display}"
-        model_color="$COLOR_SONNET"
-    elif [[ "$model_name" == *"opus"* ]] || [[ "$model_name" == *"Opus"* ]]; then
-        model_display="Opus 4.1"
-        model_info="★${LABEL_MODEL} ${model_display}"
-        model_color="$COLOR_OPUS"
-    else
-        model_display="${model_name}"
-        model_info="${ICON_ACTIVE} ${LABEL_MODEL} ${model_display}"
-        model_color="$COLOR_DEFAULT_MODEL"
+# Strip [1m] suffix and trailing -YYYYMMDD date suffix from a model ID.
+# Returns the normalised ID on stdout.
+strip_model_suffixes() {
+    local id="$1"
+    id="${id%\[1m\]}"
+    if [[ "$id" =~ ^(.*)-[0-9]{8}$ ]]; then
+        id="${BASH_REMATCH[1]}"
     fi
-    
-    # Apply rainbow effect to model name rarely in Happy Mode
-    if [[ "$HAPPY_MODE" == "true" || "$HAPPY_MODE" == "test" ]] && command -v rainbow_text >/dev/null 2>&1; then
-        # Higher chance in test mode
-        local model_rainbow_chance=500
-        if [[ "$HAPPY_MODE" == "test" ]]; then
-            model_rainbow_chance=5
-        fi
-        
-        if [[ $((RANDOM % $model_rainbow_chance)) -eq 0 ]]; then
-            model_display=$(rainbow_text "$model_display")
-            if [[ "$model_name" == *"sonnet"* ]] || [[ "$model_name" == *"Sonnet"* ]]; then
-                model_info="☆ ${LABEL_MODEL} ${model_display}"
-            elif [[ "$model_name" == *"opus"* ]] || [[ "$model_name" == *"Opus"* ]]; then
-                model_info="★ ${LABEL_MODEL} ${model_display}"
-            else
-                model_info="${ICON_ACTIVE} ${LABEL_MODEL} ${model_display}"
-            fi
-            model_color=""  # No color needed, rainbow has its own
-        fi
-    fi
-    
-    # Return model info and color
-    echo "${model_info}|${model_color}"
+    printf '%s' "$id"
 }
 
-# Export function for use by main script
+# Detect whether a raw model ID carries the [1m] context-window suffix.
+has_1m_suffix() {
+    [[ "$1" == *\[1m\] ]]
+}
+
+# Render the effort-level badge as a 4-star meter.
+# Filled stars = effort level; empty stars fill the rest so the width
+# stays constant and the level is scannable at a glance.
+#   low    →  ☆☆☆☆
+#   medium →  ★☆☆☆
+#   high   →  ★★☆☆
+#   xhigh  →  ★★★☆
+#   max    →  ★★★★
+render_effort_badge() {
+    local level="$1"
+    case "$level" in
+        low)    printf ' ☆☆☆☆' ;;
+        medium) printf ' ★☆☆☆' ;;
+        high)   printf ' ★★☆☆' ;;
+        xhigh)  printf ' ★★★☆' ;;
+        max)    printf ' ★★★★' ;;
+        *)      printf '' ;;
+    esac
+}
+
+# Main: get_model_info <raw_model_id> [display_name] [effort_level]
+# Outputs: "<icon> <display>|<color_code>" — the format display-formatter expects.
+get_model_info() {
+    local raw_id="$1"
+    local display_name="${2:-}"
+    local effort_level="${3:-}"
+
+    local is_1m=false
+    if has_1m_suffix "$raw_id"; then
+        is_1m=true
+    fi
+
+    local stripped_id
+    stripped_id=$(strip_model_suffixes "$raw_id")
+
+    local display icon color
+    local is_legacy=false
+
+    case "$stripped_id" in
+        *opus-4-7)   display="Opus 4.7";   icon="★"; color="$COLOR_OPUS" ;;
+        *opus-4-6)   display="Opus 4.6";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
+        *opus-4-5)   display="Opus 4.5";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
+        *opus-4-1)   display="Opus 4.1";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
+        *opus-4)     display="Opus 4";     icon="★"; color="$COLOR_DEPRECATED";   is_legacy=true ;;
+        *sonnet-4-6) display="Sonnet 4.6"; icon="☆"; color="$COLOR_SONNET" ;;
+        *sonnet-4-5) display="Sonnet 4.5"; icon="☆"; color="$COLOR_SONNET_LEGACY"; is_legacy=true ;;
+        *sonnet-4)   display="Sonnet 4";   icon="☆"; color="$COLOR_DEPRECATED";    is_legacy=true ;;
+        *haiku-4-5)  display="Haiku 4.5";  icon="✧"; color="$COLOR_HAIKU" ;;
+        *haiku-3-5)  display="Haiku 3.5";  icon="✧"; color="$COLOR_HAIKU_LEGACY";  is_legacy=true ;;
+        *)
+            display="${display_name:-${stripped_id}}"
+            icon="●"
+            color="$COLOR_DEFAULT_MODEL"
+            ;;
+    esac
+
+    if [[ "$is_1m" == true ]] && [[ "${SHOW_1M_BADGE:-true}" == true ]]; then
+        display="${display} ¹ᴹ"
+    fi
+
+    if [[ "${SHOW_EFFORT_BADGE:-true}" == true ]] && [[ -n "$effort_level" ]] && [[ "$effort_level" != "null" ]]; then
+        display="${display}$(render_effort_badge "$effort_level")"
+    fi
+
+    if [[ "$is_legacy" == true ]] && [[ "${SHOW_LEGACY_MARKER:-true}" == true ]]; then
+        display="${display} ⚠legacy"
+    fi
+
+    # Optional happy-mode rainbow effect (very rare).
+    if [[ "${HAPPY_MODE:-false}" == "true" || "${HAPPY_MODE:-false}" == "test" ]] && command -v rainbow_text >/dev/null 2>&1; then
+        local rainbow_chance=500
+        if [[ "${HAPPY_MODE}" == "test" ]]; then
+            rainbow_chance=5
+        fi
+        if (( RANDOM % rainbow_chance == 0 )); then
+            display=$(rainbow_text "$display")
+            color=""
+        fi
+    fi
+
+    printf '%s %s|%s\n' "$icon" "$display" "$color"
+}
+
+export -f strip_model_suffixes 2>/dev/null || true
+export -f has_1m_suffix 2>/dev/null || true
+export -f render_effort_badge 2>/dev/null || true
 export -f get_model_info 2>/dev/null || true

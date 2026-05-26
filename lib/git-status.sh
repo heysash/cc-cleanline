@@ -23,14 +23,15 @@ get_git_status() {
                     branch_rainbow_chance=10
                 fi
                 
-                if [[ $((RANDOM % $branch_rainbow_chance)) -eq 0 ]]; then
+                if [[ $((RANDOM % branch_rainbow_chance)) -eq 0 ]]; then
                     display_branch=$(generate_rainbow_branch "$branch")
                 fi
             fi
-            
+
             # Check for actual git changes (staged + unstaged)
-            local staged_changes=$(git diff --cached --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
-            local unstaged_changes=$(git diff --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
+            local staged_changes unstaged_changes
+            staged_changes=$(git diff --cached --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
+            unstaged_changes=$(git diff --numstat | awk 'BEGIN{add=0; rem=0} {add+=$1; rem+=$2} END{printf "+%d/-%d", add, rem}' 2>/dev/null)
             
             # Format git status with changes
             if [ "$staged_changes" != "+0/-0" ] || [ "$unstaged_changes" != "+0/-0" ]; then

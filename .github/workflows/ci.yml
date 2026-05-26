@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+          scandir: '.'
+          check_together: 'yes'
+          ignore_paths: |
+            tests/fixtures
+          # Skip files moved aside for cleanup (removed in a follow-up).
+          ignore_names: |
+            *.deprecated
+
+  bats:
+    name: Bats (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bats-core and jq (ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats jq
+
+      - name: Install bats-core and jq (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install bats-core jq
+
+      - name: Run bats suite
+        run: bats --recursive tests/

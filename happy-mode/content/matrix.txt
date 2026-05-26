@@ -1,0 +1,29 @@
+# Matrix quotes — one per line. Lines starting with # are ignored.
+# Drop your own additions here; they're picked at random by the engine.
+Follow the white rabbit...
+There is no spoon
+Wake up, Neo...
+The Matrix has you...
+Welcome to the real world
+Free your mind
+I know kung fu
+Dodge this
+You think that's air you're breathing now?
+Unfortunately, no one can be told what the Matrix is
+You have to see it for yourself
+The answer is out there, Neo
+It's the question that drives us
+What is real?
+There is a difference between knowing the path and walking the path
+Everything begins with choice
+The code is everywhere
+You're the One, Neo
+Choice. The problem is choice
+Fate, it seems, is not without a sense of irony
+Hope. It is the quintessential human delusion
+Why do my eyes hurt? You've never used them before
+There is no main branch
+The /compact ends here
+Plan-Mode is the only escape
+I see worktrees now
+The statusline has you

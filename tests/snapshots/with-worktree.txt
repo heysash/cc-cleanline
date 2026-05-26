@@ -1,0 +1,4 @@
+○ no git repository ▶ ./curious-feature-abc123
+★ Opus 4.7 42.0k · 21.0% ⏱ Reset 4h 30m
+  ● 5h Limit: Low · $0.38 session
+🌿 worktree: curious-feature-abc123 ▸ branch: claude/curious-feature-abc123

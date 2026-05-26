@@ -1,0 +1,52 @@
+{
+  "session_id": "99999999-9999-9999-9999-999999999999",
+  "transcript_path": "/tmp/test-pr.jsonl",
+  "cwd": "/Users/test/projects/example",
+  "model": {
+    "id": "claude-opus-4-7",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/example",
+    "project_dir": "/Users/test/projects/example",
+    "repo": {
+      "host": "github.com",
+      "owner": "test",
+      "name": "example"
+    }
+  },
+  "context_window": {
+    "total_input_tokens": 65000,
+    "total_output_tokens": 1800,
+    "context_window_size": 200000,
+    "used_percentage": 33.4,
+    "remaining_percentage": 66.6
+  },
+  "cost": {
+    "total_cost_usd": 0.74,
+    "total_duration_ms": 360000,
+    "total_api_duration_ms": 52000,
+    "total_lines_added": 22,
+    "total_lines_removed": 9
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 27.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 9.5,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "pr": {
+    "number": 42,
+    "url": "https://github.com/test/example/pull/42",
+    "review_state": "changes_requested"
+  },
+  "version": "2.1.150"
+}

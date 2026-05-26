@@ -1,0 +1,42 @@
+{
+  "session_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "transcript_path": "/tmp/test-high-rate.jsonl",
+  "cwd": "/Users/test/projects/example",
+  "model": {
+    "id": "claude-opus-4-7",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/example",
+    "project_dir": "/Users/test/projects/example"
+  },
+  "context_window": {
+    "total_input_tokens": 175000,
+    "total_output_tokens": 8200,
+    "context_window_size": 200000,
+    "used_percentage": 91.6,
+    "remaining_percentage": 8.4
+  },
+  "cost": {
+    "total_cost_usd": 6.18,
+    "total_duration_ms": 4200000,
+    "total_api_duration_ms": 580000,
+    "total_lines_added": 142,
+    "total_lines_removed": 58
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 93.0,
+      "resets_at": 1748270700
+    },
+    "seven_day": {
+      "used_percentage": 41.0,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "version": "2.1.150"
+}

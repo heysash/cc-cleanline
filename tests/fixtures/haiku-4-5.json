@@ -1,0 +1,42 @@
+{
+  "session_id": "44444444-4444-4444-4444-444444444444",
+  "transcript_path": "/tmp/test-haiku-45.jsonl",
+  "cwd": "/Users/test/projects/scripts",
+  "model": {
+    "id": "claude-haiku-4-5-20251001",
+    "display_name": "Haiku"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/scripts",
+    "project_dir": "/Users/test/projects/scripts"
+  },
+  "context_window": {
+    "total_input_tokens": 15000,
+    "total_output_tokens": 800,
+    "context_window_size": 200000,
+    "used_percentage": 7.9,
+    "remaining_percentage": 92.1
+  },
+  "cost": {
+    "total_cost_usd": 0.02,
+    "total_duration_ms": 85000,
+    "total_api_duration_ms": 12000,
+    "total_lines_added": 4,
+    "total_lines_removed": 0
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 4.5,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 2.1,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "version": "2.1.150"
+}

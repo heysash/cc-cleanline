@@ -1,0 +1,16 @@
+# Achievements. Format: id|condition|message
+# Conditions understood by the engine:
+#   always           — fires once on the first happy-mode trigger ever
+#   night_owl        — fires once when triggered between 02:00 and 05:00
+#   in_worktree      — fires once inside a Claude Code worktree
+#   effort_max       — fires once with effort.level == "max"
+#   context_1m       — fires once when exceeds_200k_tokens is true
+#   long_session     — fires once when rate_limit > 80%
+#   plan_mode        — fires once with output_style.name "Plan"
+first-trigger|always|🏆 Achievement: Welcome to Happy Mode!
+night-owl|night_owl|🦉 Achievement: Night Owl detected
+worktree-explorer|in_worktree|🌿 Achievement: Worktree pioneer
+max-effort|effort_max|🔥 Achievement: Operating at maximum effort
+1m-context|context_1m|🌌 Achievement: 1M context unlocked
+long-session|long_session|⚡ Achievement: Endurance coder (5h limit > 80%)
+plan-mode|plan_mode|📋 Achievement: Plan Mode philosopher

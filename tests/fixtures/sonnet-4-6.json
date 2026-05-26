@@ -1,0 +1,42 @@
+{
+  "session_id": "33333333-3333-3333-3333-333333333333",
+  "transcript_path": "/tmp/test-sonnet-46.jsonl",
+  "cwd": "/Users/test/projects/webapp",
+  "model": {
+    "id": "claude-sonnet-4-6",
+    "display_name": "Sonnet"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/webapp",
+    "project_dir": "/Users/test/projects/webapp"
+  },
+  "context_window": {
+    "total_input_tokens": 78000,
+    "total_output_tokens": 2100,
+    "context_window_size": 200000,
+    "used_percentage": 40.1,
+    "remaining_percentage": 59.9
+  },
+  "cost": {
+    "total_cost_usd": 0.27,
+    "total_duration_ms": 540000,
+    "total_api_duration_ms": 78000,
+    "total_lines_added": 28,
+    "total_lines_removed": 7
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 18.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 6.2,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "version": "2.1.150"
+}

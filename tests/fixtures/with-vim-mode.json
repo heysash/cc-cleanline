@@ -1,0 +1,45 @@
+{
+  "session_id": "77777777-7777-7777-7777-777777777777",
+  "transcript_path": "/tmp/test-vim.jsonl",
+  "cwd": "/Users/test/projects/example",
+  "model": {
+    "id": "claude-sonnet-4-6",
+    "display_name": "Sonnet"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/example",
+    "project_dir": "/Users/test/projects/example"
+  },
+  "context_window": {
+    "total_input_tokens": 35000,
+    "total_output_tokens": 1100,
+    "context_window_size": 200000,
+    "used_percentage": 18.1,
+    "remaining_percentage": 81.9
+  },
+  "cost": {
+    "total_cost_usd": 0.12,
+    "total_duration_ms": 240000,
+    "total_api_duration_ms": 28000,
+    "total_lines_added": 5,
+    "total_lines_removed": 1
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 15.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 5.5,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "vim": {
+    "mode": "INSERT"
+  },
+  "version": "2.1.150"
+}
