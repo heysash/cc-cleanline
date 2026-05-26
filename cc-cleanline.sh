@@ -1,129 +1,167 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ====================================================================
+# CC CleanLine — modular status line for Claude Code
+# ====================================================================
+# Reads the Claude Code statusline JSON from stdin, delegates rendering
+# to focused modules under lib/, and prints a 3- to 5-line status line.
+# ====================================================================
 
-# ====================================================================
-# CC CleanLine - Modular Status Line for Claude Code
-# ====================================================================
-# Main orchestration script that coordinates all modules
-# ====================================================================
-
-# Load configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ---- Configuration --------------------------------------------------
 CONFIG_FILE="${SCRIPT_DIR}/cc-cleanline.config.sh"
 LOCAL_CONFIG_FILE="${SCRIPT_DIR}/cc-cleanline.config.local"
 
-# Check if default config file exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "Error: Configuration file not found at $CONFIG_FILE" >&2
+    echo "Error: configuration not found at $CONFIG_FILE" >&2
     exit 1
 fi
-
-# Source the default configuration
+# shellcheck disable=SC1090
 source "$CONFIG_FILE"
-
-# Source local configuration overrides if they exist
 if [[ -f "$LOCAL_CONFIG_FILE" ]]; then
+    # shellcheck disable=SC1090
     source "$LOCAL_CONFIG_FILE"
 fi
 
-# Load Happy Mode Engine if it exists
-HAPPY_MODE_FILE="${SCRIPT_DIR}/happy-mode.sh"
-if [[ -f "$HAPPY_MODE_FILE" ]]; then
-    source "$HAPPY_MODE_FILE"
-fi
-
-# Load all modules
-for module in "${SCRIPT_DIR}"/lib/*.sh; do
-    if [[ -f "$module" ]]; then
-        source "$module"
+# ---- Happy Mode engine ----------------------------------------------
+# Load rainbow utility first (other modules use it for branch/model fx).
+for happy_module in \
+    "${SCRIPT_DIR}/happy-mode/rainbow.sh" \
+    "${SCRIPT_DIR}/happy-mode/engine.sh"
+do
+    if [[ -f "$happy_module" ]]; then
+        # shellcheck disable=SC1090
+        source "$happy_module"
     fi
 done
+unset happy_module
 
-# Read JSON input from stdin
+# ---- Modules --------------------------------------------------------
+for module in "${SCRIPT_DIR}"/lib/*.sh; do
+    [[ -f "$module" ]] || continue
+    # shellcheck disable=SC1090
+    source "$module"
+done
+
+# ---- Input ----------------------------------------------------------
 input=$(cat)
 
-# Debug logging (uncomment to capture real Claude Code JSON)
+# Optional debug capture — uncomment to record real-session JSON to disk.
 # echo "$(date): $input" >> "${SCRIPT_DIR}/debug-input.log"
 
-# Extract data from JSON
-current_dir=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
-model_name=$(echo "$input" | jq -r '.model.display_name // .model.id')
-session_id=$(echo "$input" | jq -r '.session_id')
-transcript_path=$(echo "$input" | jq -r '.transcript_path // ""')
-total_cost_usd=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
+# Parse all needed fields in a single jq call.
+# jq emits each value on its own line; a line-based array preserves empty
+# strings — unlike `read -r` with IFS=tab, which collapses consecutive
+# delimiters and silently shifts fields when one is empty.
+fields=()
+while IFS= read -r _line; do
+    fields+=("$_line")
+done < <(printf '%s' "$input" | jq -r '
+    .workspace.current_dir // .cwd // "",
+    .model.id // "",
+    .model.display_name // "",
+    .session_id // "",
+    .transcript_path // "",
+    .version // "",
+    .cost.total_cost_usd // 0,
+    .context_window.total_input_tokens // 0,
+    .context_window.context_window_size // 200000,
+    .exceeds_200k_tokens // false,
+    .rate_limits.five_hour.used_percentage // 0,
+    .rate_limits.five_hour.resets_at // 0,
+    .output_style.name // "",
+    .vim.mode // "",
+    .worktree.name // "",
+    .worktree.branch // "",
+    .pr.number // "",
+    .pr.review_state // "",
+    .effort.level // ""
+')
 
-# Check login status
-if [ -n "$session_id" ] && [ "$session_id" != "null" ]; then
-    is_logged_in=true
-else
-    is_logged_in=false
-fi
+current_dir="${fields[0]}"
+model_id="${fields[1]}"
+model_display="${fields[2]}"
+session_id="${fields[3]}"
+transcript_path="${fields[4]}"
+version="${fields[5]}"
+total_cost_usd="${fields[6]}"
+context_input_tokens="${fields[7]}"
+context_window_size="${fields[8]}"
+exceeds_200k="${fields[9]}"
+rate_limit_5h_pct="${fields[10]}"
+rate_limit_5h_reset="${fields[11]}"
+output_style_name="${fields[12]}"
+vim_mode="${fields[13]}"
+worktree_name="${fields[14]}"
+worktree_branch="${fields[15]}"
+pr_number="${fields[16]}"
+pr_review_state="${fields[17]}"
+effort_level="${fields[18]}"
 
-# Get git status information
+# Silence shellcheck for the few variables we read for future use.
+: "$session_id" "$transcript_path" "$exceeds_200k"
+
+# ---- Render module outputs (each: "text|color") ---------------------
 git_result=$(get_git_status)
-git_status=$(echo "$git_result" | cut -d'|' -f1)
-git_color=$(echo "$git_result" | cut -d'|' -f2)
+git_status="${git_result%|*}"
+git_color="${git_result##*|}"
 
-# Format directory path
 dir_path=$(format_directory_path "$current_dir")
 
-# Get login status
-login_result=$(format_login_status "$is_logged_in")
-login_status=$(echo "$login_result" | cut -d'|' -f1)
-login_color=$(echo "$login_result" | cut -d'|' -f2)
+model_result=$(get_model_info "$model_id" "$model_display" "$effort_level")
+model_info="${model_result%|*}"
+model_color="${model_result##*|}"
 
-# Get model information
-model_result=$(get_model_info "$model_name")
-model_info=$(echo "$model_result" | cut -d'|' -f1)
-model_color=$(echo "$model_result" | cut -d'|' -f2)
-
-# Get cost tracking information
-current_session_cost=$(get_current_session_cost)
-today_total_cost=$(get_today_total_cost)
-time_remaining=$(get_time_until_next_session)
-
-# Format time until next session
-time_left="⏱ Next Session ${time_remaining}"
-
-# Get session token status (pass model color for Medium usage)
-session_token_result=$(get_session_token_status "$model_color")
-if [ -n "$session_token_result" ]; then
-    session_token_status=$(echo "$session_token_result" | cut -d'|' -f1)
-    session_token_color=$(echo "$session_token_result" | cut -d'|' -f2)
+context_result=$(get_context_display "$context_input_tokens" "$context_window_size" "$model_color")
+context_display="${context_result%|*}"
+context_color="${context_result##*|}"
+if [[ "$context_result" == "$context_display" ]]; then
+    # No pipe → empty payload
+    context_display=""
+    context_color=""
 fi
 
+time_until_reset=$(format_time_until_reset "$rate_limit_5h_reset")
 
-# Get context metrics status with flexible model/token display
-context_metrics_result=$(get_context_metrics_status "$transcript_path" "$session_id" "$model_color" "$model_name" 2>/dev/null)
-if [ -n "$context_metrics_result" ]; then
-    # Parse: extract everything except the last field (which is the color)
-    context_metrics_status=$(echo "$context_metrics_result" | rev | cut -d'|' -f2- | rev)
-    context_metrics_color=$(echo "$context_metrics_result" | rev | cut -d'|' -f1 | rev)
-else
-    context_metrics_status=""
-    context_metrics_color=""
+rate_limit_result=$(format_rate_limit "$rate_limit_5h_pct")
+rate_limit_status="${rate_limit_result%|*}"
+rate_limit_color="${rate_limit_result##*|}"
+if [[ "$rate_limit_result" == "$rate_limit_status" ]]; then
+    rate_limit_status=""
+    rate_limit_color=""
 fi
 
-# Format cost display
-cost_display=$(format_cost_display "$is_logged_in" "$today_total_cost" "$current_session_cost" "$total_cost_usd" "$session_token_status")
+session_cost=$(format_session_cost "$total_cost_usd")
 
-# Set final context display from new metrics
-final_context_status="$context_metrics_status"
-final_context_color="$context_metrics_color"
-
-# Output the formatted status line (use flexible display or fallback to separate model info)
-if [ -n "$context_metrics_status" ]; then
-    # Use new flexible display (includes model + token info)
-    output_status_line "$git_status" "$git_color" "$dir_path" \
-        "$login_status" "$login_color" "" "" \
-        "$context_metrics_status" "$context_metrics_color" \
-        "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
-else
-    # Fallback to old display with separate model info
-    output_status_line "$git_status" "$git_color" "$dir_path" \
-        "$login_status" "$login_color" "$model_info" "$model_color" \
-        "$final_context_status" "$final_context_color" \
-        "$time_left" "$cost_display" "$session_token_status" "$session_token_color"
+worktree_result=$(format_worktree_line "$worktree_name" "$worktree_branch")
+worktree_text="${worktree_result%|*}"
+worktree_color="${worktree_result##*|}"
+if [[ "$worktree_result" == "$worktree_text" ]]; then
+    worktree_text=""
+    worktree_color=""
 fi
 
-# Trigger Happy Mode easter eggs if enabled
-trigger_happy_mode_context "$time_remaining"
+extras_result=$(format_extras_line "$output_style_name" "$vim_mode" "$pr_number" "$pr_review_state" "$version")
+extras_text="${extras_result%|*}"
+extras_color="${extras_result##*|}"
+if [[ "$extras_result" == "$extras_text" ]]; then
+    extras_text=""
+    extras_color=""
+fi
+
+# ---- Print ----------------------------------------------------------
+output_status_line \
+    "$git_status" "$git_color" \
+    "$dir_path" \
+    "$model_info" "$model_color" \
+    "$context_display" "$context_color" \
+    "$time_until_reset" \
+    "$rate_limit_status" "$rate_limit_color" \
+    "$session_cost" \
+    "$worktree_text" "$worktree_color" \
+    "$extras_text" "$extras_color"
+
+# ---- Happy Mode trigger (legacy integration; refactored next) -------
+if command -v trigger_happy_mode_context >/dev/null 2>&1; then
+    trigger_happy_mode_context "$time_until_reset"
+fi

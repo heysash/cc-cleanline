@@ -1,90 +1,75 @@
 #!/usr/bin/env bash
 
 # ====================================================================
-# Claude Code Status Line Configuration
+# CC CleanLine — default configuration
 # ====================================================================
-# This file contains all customizable settings for the status line
-# including colors, labels, icons and display preferences.
+# All settings live here. To override anything, copy
+# cc-cleanline.config.example to cc-cleanline.config.local and edit
+# the .local file. The .local file is git-ignored.
 # ====================================================================
 
 # --------------------------------------------------------------------
-# COLOR DEFINITIONS
+# COLOR DEFINITIONS  (256-colour ANSI codes)
 # --------------------------------------------------------------------
-# Terminal color codes for different status states and UI elements
 
-# Status Colors
-COLOR_ACTIVE_STATUS='\033[92m'          # Light green - Active/connected state (consistent bright green)
-COLOR_INACTIVE_STATUS='\033[38;5;196m'  # Red - Inactive/disconnected state
-COLOR_CRITICAL_STATUS='\033[38;5;196m'  # Red - Critical state
-COLOR_ORANGE='\033[38;5;208m'           # Orange - Medium usage
-COLOR_RED='\033[38;5;196m'              # Red - High usage
+# Severity colours
+COLOR_ACTIVE_STATUS='\033[92m'          # Bright green   — Low / OK
+COLOR_INACTIVE_STATUS='\033[38;5;196m'  # Red            — Inactive (e.g. no git repo)
+COLOR_CRITICAL_STATUS='\033[38;5;196m'  # Red            — Critical state
+COLOR_ORANGE='\033[38;5;208m'           # Orange         — Medium usage
+COLOR_RED='\033[38;5;196m'              # Red            — High usage
 
-# Model Colors
-COLOR_OPUS='\033[38;5;215m'             # Sandybrown #F4A460 - Opus model
-COLOR_SONNET='\033[38;5;130m'           # Saddlebrown #8B4513 - Sonnet model  
-COLOR_DEFAULT_MODEL='\033[38;5;248m'    # Darkgray #A9A9A9 - Unknown model
+# Model colours
+COLOR_OPUS='\033[38;5;215m'             # Sandybrown     — Opus (current)
+COLOR_OPUS_LEGACY='\033[38;5;180m'      # Dimmed         — Opus (legacy)
+COLOR_SONNET='\033[38;5;130m'           # Saddlebrown    — Sonnet (current)
+COLOR_SONNET_LEGACY='\033[38;5;101m'    # Dimmed         — Sonnet (legacy)
+COLOR_HAIKU='\033[38;5;117m'            # Sky-blue       — Haiku (current)
+COLOR_HAIKU_LEGACY='\033[38;5;110m'     # Dimmed         — Haiku (legacy)
+COLOR_DEPRECATED='\033[38;5;240m'       # Dark grey      — Deprecated models
+COLOR_DEFAULT_MODEL='\033[38;5;248m'    # Light grey     — Unknown model
 
-# UI Element Colors
-COLOR_NEUTRAL_TEXT='\033[90m'             # Standard terminal gray - Neutral text  
-COLOR_RESET='\033[0m'                     # Reset to default
+# UI element colours
+COLOR_NEUTRAL_TEXT='\033[90m'           # Terminal grey  — Neutral text
+COLOR_RESET='\033[0m'                   # Reset
 
 # --------------------------------------------------------------------
 # ICON DEFINITIONS
 # --------------------------------------------------------------------
-# Unicode icons for different status indicators
-
-# Status Icons
-ICON_ACTIVE="●"                         # Active/connected indicator
-ICON_INACTIVE="○"                       # Inactive/disconnected indicator
-ICON_WARNING="⚠"                        # Warning indicator
-ICON_CHECK="✓"                          # Success/okay indicator
-
-# --------------------------------------------------------------------
-# LABEL DEFINITIONS
-# --------------------------------------------------------------------
-# Text labels for different status line elements
-
-# Active Status Labels
-LABEL_LOGGED_IN="Logged-In"             # User is logged in
-
-# Inactive Status Labels  
-LABEL_NOT_LOGGED_IN="Not logged in"     # User not logged in
-
-# Field Labels
-LABEL_MODEL="LLM"                       # Model field label
+ICON_ACTIVE="●"
+ICON_INACTIVE="○"
+ICON_WARNING="⚠"
+ICON_CHECK="✓"
 
 # --------------------------------------------------------------------
 # DISPLAY SETTINGS
 # --------------------------------------------------------------------
-# Configure what information to show and how
 
-# Formatting Options
-SHOW_FULL_PATH=false                      # Show full directory path vs. short name
+# Path rendering
+SHOW_FULL_PATH=false                    # false → "./dirname"; true → absolute path
 
-# Cost Display Options
-SHOW_API_COSTS_WHEN_INCLUDED=true         # When logged in: hides "- Saved Today $X.XX This Session $X.XX", only shows "⚡API Costs Included"
-SHOW_API_COSTS=true                       # When not logged in: shows actual API costs "$X.XX"
+# Token display
+SHOW_TOKEN_ABSOLUTE=true                # "59.0k" in the context segment
+SHOW_TOKEN_PERCENT_TOTAL=true           # "29.5%" in the context segment
 
-# Context Metrics Cache Settings
-CONTEXT_METRICS_CACHE_TTL=5               # Cache context metrics for 5 seconds (in seconds)
+# Model-name decorations
+SHOW_EFFORT_BADGE=true                  # 4-star effort meter (☆☆☆☆ … ★★★★) next to model
+SHOW_1M_BADGE=true                      # ¹ᴹ next to Opus 4.7 etc. when [1m]
+SHOW_LEGACY_MARKER=true                 # ⚠legacy hint for old model IDs
 
-# Model & Token Display Options (Flexible Display System - combines model name with token metrics)
-SHOW_MODEL_NAME=true                      # Show model name (e.g., "Sonnet 4")
-SHOW_TOKEN_ABSOLUTE=true                  # Show absolute token count (simplified: "59.0k" or extended: "59.0k/200k" if no percentages)
-SHOW_TOKEN_PERCENT_TOTAL=true             # Show percentage of 200k total (simplified format: "29.5% 200k")
-SHOW_TOKEN_PERCENT_USABLE=true            # Show percentage of 160k usable limit (simplified format: "36.9% 160k")
-# Note: 160k is Claude Code's compression trigger point - when context reaches this limit,
-# Claude Code automatically compresses the chat history to create a new context window
+# Adaptive optional lines
+SHOW_WORKTREE_LINE=true                 # Line 4 when worktree.name is set
+SHOW_EXTRAS_LINE=true                   # Line 5 (style / vim / PR)
+SHOW_VERSION=false                      # Append "v2.1.150" to line 5
 
 # --------------------------------------------------------------------
-# HAPPY MODE SETTINGS (Easter Eggs for Bored Devs)
+# HAPPY MODE  (easter eggs — opt-in)
 # --------------------------------------------------------------------
-# Experimental mode for developers who found this... What's this? 🐰
-HAPPY_MODE=false                           # Enable random easter eggs and surprises
-
-# Happy Mode Configuration (when enabled)
-HAPPY_MODE_MATRIX_CHANCE=33                # Matrix references chance % (33% recommended)
-HAPPY_MODE_FORTUNE_CHANCE=33               # Fortune cookies chance % after commits
-HAPPY_MODE_TIME_SURPRISES=true             # Enable time-based messages  
-HAPPY_MODE_RAINBOW_CHANCE=10               # Rainbow effects chance % (rare but visible)
-HAPPY_MODE_COOLDOWN_MINUTES=15             # Minimum minutes between surprises
+# All values use ${VAR:-default} so existing environment variables win
+# (handy for CI, tests, and one-shot debugging).
+HAPPY_MODE="${HAPPY_MODE:-false}"                                # true | false | test
+HAPPY_MODE_MATRIX_CHANCE="${HAPPY_MODE_MATRIX_CHANCE:-33}"       # %, accepts floats
+HAPPY_MODE_FORTUNE_CHANCE="${HAPPY_MODE_FORTUNE_CHANCE:-33}"     # %, after recent commit
+HAPPY_MODE_TIME_SURPRISES="${HAPPY_MODE_TIME_SURPRISES:-true}"   # enable time-based pings
+HAPPY_MODE_RAINBOW_CHANCE="${HAPPY_MODE_RAINBOW_CHANCE:-10}"     # %, rare rainbow effect
+HAPPY_MODE_COOLDOWN_MINUTES="${HAPPY_MODE_COOLDOWN_MINUTES:-15}" # minutes between surprises

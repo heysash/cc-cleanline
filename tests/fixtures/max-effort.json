@@ -1,0 +1,48 @@
+{
+  "session_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "transcript_path": "/tmp/test-max-effort.jsonl",
+  "cwd": "/Users/test/projects/example",
+  "model": {
+    "id": "claude-opus-4-7",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/example",
+    "project_dir": "/Users/test/projects/example"
+  },
+  "context_window": {
+    "total_input_tokens": 110000,
+    "total_output_tokens": 4800,
+    "context_window_size": 200000,
+    "used_percentage": 57.4,
+    "remaining_percentage": 42.6
+  },
+  "cost": {
+    "total_cost_usd": 2.45,
+    "total_duration_ms": 920000,
+    "total_api_duration_ms": 215000,
+    "total_lines_added": 65,
+    "total_lines_removed": 22
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 48.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 15.8,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "effort": {
+    "level": "max"
+  },
+  "thinking": {
+    "enabled": true
+  },
+  "version": "2.1.150"
+}

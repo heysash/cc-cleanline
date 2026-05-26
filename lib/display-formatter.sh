@@ -1,120 +1,113 @@
 #!/bin/bash
-# Display formatter module for CC CleanLine
-# Handles final status line formatting and output
+# Display formatter for CC CleanLine.
+# Composes the final status line — 3 core lines always, plus an adaptive
+# 4th (worktree) and 5th (extras: output style / vim mode / PR) line that
+# only appear when their data is present.
 
-# Format directory path
+# Render a directory path, honouring SHOW_FULL_PATH.
 format_directory_path() {
     local current_dir="$1"
-    local dir_path=""
-    
-    if [ "$SHOW_FULL_PATH" = true ]; then
-        dir_path="$current_dir"
+    if [[ "${SHOW_FULL_PATH:-false}" == true ]]; then
+        printf '%s' "$current_dir"
     else
-        # Show only the current directory name with ./
-        dir_path="./$(basename "$current_dir")"
+        printf './%s' "$(basename "$current_dir")"
     fi
-    
-    echo "$dir_path"
 }
 
-# Format login status
-format_login_status() {
-    local is_logged_in="$1"
-    local login_status=""
-    local login_color=""
-    
-    if [ "$is_logged_in" = true ]; then
-        login_status="${ICON_ACTIVE} ${LABEL_LOGGED_IN}"
-        login_color="$COLOR_ACTIVE_STATUS"
+# Join a status segment with its ANSI color, falling back to a bare text
+# segment when no color is provided (e.g. rainbow output supplies its own).
+_render_segment() {
+    local text="$1"
+    local color="$2"
+    if [[ -n "$color" ]]; then
+        printf '%b%s%b' "$color" "$text" "$COLOR_RESET"
     else
-        login_status="${ICON_INACTIVE} ${LABEL_NOT_LOGGED_IN}"
-        login_color="$COLOR_INACTIVE_STATUS"
+        printf '%s' "$text"
     fi
-    
-    echo "${login_status}|${login_color}"
 }
 
-# Format cost display
-format_cost_display() {
-    local is_logged_in="$1"
-    local today_total_cost="$2"
-    local current_session_cost="$3"
-    local total_cost_usd="$4"
-    local session_token_status="$5"
-    local cost_display=""
-    
-    if [ "$is_logged_in" = true ]; then
-        # When logged in
-        if [ "$SHOW_API_COSTS_WHEN_INCLUDED" = true ]; then
-            api_part="⚡API Costs Included - Saved Today \$$today_total_cost This Session \$$current_session_cost"
-        else
-            api_part="⚡API Costs Included"
-        fi
-        
-        if [ -n "$session_token_status" ]; then
-            cost_display="${session_token_status} ${api_part}"
-        else
-            cost_display="${api_part}"
-        fi
-    else
-        # When not logged in
-        if [ "$SHOW_API_COSTS" = true ]; then
-            api_part="⚡API \$$(printf "%.2f" "$total_cost_usd") (current session)"
-        else
-            api_part="⚡API"
-        fi
-        
-        if [ -n "$session_token_status" ]; then
-            cost_display="${session_token_status} ${api_part}"
-        else
-            cost_display="${api_part}"
-        fi
-    fi
-    
-    echo "$cost_display"
+# Print line 1: git status + directory.
+_print_line1() {
+    local git_status="$1" git_color="$2" dir_path="$3"
+    printf '%b ' "$(_render_segment "$git_status" "$git_color")"
+    printf '%b\n' "$(_render_segment "▶ ${dir_path}" "$COLOR_NEUTRAL_TEXT")"
 }
 
-# Output the formatted status line
+# Print line 2: model + context + time-until-reset.
+# context_display and time_until_reset are optional — segments are skipped
+# when empty.
+_print_line2() {
+    local model_info="$1" model_color="$2"
+    local context_display="$3" context_color="$4"
+    local time_until_reset="$5"
+
+    local line
+    line="$(_render_segment "$model_info" "$model_color")"
+    if [[ -n "$context_display" ]]; then
+        line="${line} $(_render_segment "$context_display" "$context_color")"
+    fi
+    if [[ -n "$time_until_reset" ]]; then
+        line="${line} $(_render_segment "⏱ Reset ${time_until_reset}" "$COLOR_NEUTRAL_TEXT")"
+    fi
+    printf '%b\n' "$line"
+}
+
+# Print line 3: rate-limit status + session cost.
+# Either segment may be empty; the line is suppressed entirely if both are.
+_print_line3() {
+    local rate_limit_status="$1" rate_limit_color="$2"
+    local session_cost="$3"
+
+    if [[ -z "$rate_limit_status" ]] && [[ -z "$session_cost" ]]; then
+        return
+    fi
+
+    local line='  '  # two-space indent matches the legacy layout
+    if [[ -n "$rate_limit_status" ]]; then
+        line="${line}$(_render_segment "$rate_limit_status" "$rate_limit_color")"
+    fi
+    if [[ -n "$rate_limit_status" ]] && [[ -n "$session_cost" ]]; then
+        line="${line} $(_render_segment "·" "$COLOR_NEUTRAL_TEXT") "
+    fi
+    if [[ -n "$session_cost" ]]; then
+        line="${line}$(_render_segment "${session_cost} session" "$COLOR_NEUTRAL_TEXT")"
+    fi
+    printf '%b\n' "$line"
+}
+
+# Print line 4 (optional): worktree info.
+_print_line4() {
+    local worktree_text="$1" worktree_color="$2"
+    if [[ -n "$worktree_text" ]]; then
+        printf '%b\n' "$(_render_segment "$worktree_text" "$worktree_color")"
+    fi
+}
+
+# Print line 5 (optional): output style / vim / PR / version.
+_print_line5() {
+    local extras_text="$1" extras_color="$2"
+    if [[ -n "$extras_text" ]]; then
+        printf '%b\n' "$(_render_segment "$extras_text" "$extras_color")"
+    fi
+}
+
+# output_status_line — argument order:
+#   1  git_status            2  git_color
+#   3  dir_path
+#   4  model_info            5  model_color
+#   6  context_display       7  context_color
+#   8  time_until_reset
+#   9  rate_limit_status    10  rate_limit_color
+#  11  session_cost
+#  12  worktree_text        13  worktree_color
+#  14  extras_text          15  extras_color
 output_status_line() {
-    local git_status="$1"
-    local git_color="$2"
-    local dir_path="$3"
-    local login_status="$4"
-    local login_color="$5"
-    local model_info="$6"
-    local model_color="$7"
-    local context_window_status="$8"
-    local context_window_color="$9"
-    local time_left="${10}"
-    local cost_display="${11}"
-    local session_token_status="${12}"
-    local session_token_color="${13}"
-    
-    # Output first line: git status and directory
-    printf "${git_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}▶ %s${COLOR_RESET}\n" \
-        "$git_status" "$dir_path"
-    
-    # Output second line: login status, model info, context window (if available), and time
-    if [ -n "$context_window_status" ]; then
-        # Include context window status - use echo to avoid printf format issues with %
-        echo -e "${login_color}${login_status}${COLOR_RESET} ${model_color}${model_info}${COLOR_RESET} ${context_window_color}${context_window_status}${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}${time_left}${COLOR_RESET}"
-    else
-        # No context window status
-        echo -e "${login_color}${login_status}${COLOR_RESET} ${model_color}${model_info}${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}${time_left}${COLOR_RESET}"
-    fi
-    
-    # Output third line: cost display with token status
-    if [ -n "$session_token_status" ] && [ -n "$session_token_color" ]; then
-        # Token status is now at the beginning, extract API part
-        api_part="${cost_display#${session_token_status} }"
-        printf "  ${session_token_color}%s${COLOR_RESET} ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$session_token_status" "$api_part"
-    else
-        printf "  ${COLOR_NEUTRAL_TEXT}%s${COLOR_RESET}\n" "$cost_display"
-    fi
+    _print_line1 "$1" "$2" "$3"
+    _print_line2 "$4" "$5" "$6" "$7" "$8"
+    _print_line3 "$9" "${10}" "${11}"
+    _print_line4 "${12}" "${13}"
+    _print_line5 "${14}" "${15}"
 }
 
-# Export functions for use by main script
 export -f format_directory_path 2>/dev/null || true
-export -f format_login_status 2>/dev/null || true
-export -f format_cost_display 2>/dev/null || true
 export -f output_status_line 2>/dev/null || true

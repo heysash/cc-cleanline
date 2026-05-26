@@ -1,0 +1,10 @@
+shell=bash
+external-sources=true
+
+# SC1091: sourced files that shellcheck cannot follow at lint time
+#         (we source modules at runtime via dynamic paths).
+disable=SC1091
+
+# SC2034: variables defined in config files are consumed by sourced modules.
+#         shellcheck cannot see that linkage statically.
+disable=SC2034

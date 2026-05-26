@@ -1,0 +1,14 @@
+# Time-based surprises. Format: HHMM|Message
+# Engine matches against the wall-clock time (24h). Lines starting with # are ignored.
+1337|Elite time has arrived
+0000|Midnight coding session detected. Coffee recommended
+0300|3 AM? The witching hour of debugging
+0404|Error 404: Sleep not found
+1111|Make a wish at 11:11
+1234|1-2-3-4, the code flows in order
+2359|One minute until tomorrow's bugs
+0042|The answer to everything is near
+0101|Binary time: 01:01
+2222|All the twos align
+1010|Binary 10:10 — perfectly balanced
+0930|Standup time?

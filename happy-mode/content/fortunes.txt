@@ -1,0 +1,28 @@
+# Fortune cookies — one per line. Lines starting with # are ignored.
+# Fired after recent commits and similar gentle moments.
+Your code compiles... but does it dream?
+That semicolon just saved humanity
+A missing bracket today is a production bug tomorrow
+The bug is not in the code, it's in the specs
+Today's git push will become tomorrow's git revert
+Your future holds many merge conflicts
+A clean commit message brings good karma
+The answer you seek is in the stack trace
+Beware of copy-paste, for it brings ancient curses
+Your rubber duck has all the answers
+The senior dev you seek is within yourself
+Coffee is the source of all refactoring
+This too shall pass... all tests
+Your code review will reveal hidden wisdom
+The bug you cannot find has already found you
+A thousand-line function awaits simplification
+Your variable names shall confuse future you
+The TODO you write today will outlive us all
+Legacy code is just code that works
+Your next npm install will succeed... eventually
+A worktree spawned in haste is regret deferred
+Plan mode is for the wise; execute mode for the brave
+The 1M context is a luxury, not a license
+Effort: max is a state of mind, not just a flag
+Your subagent works while you sleep
+A skill triggered at the right moment saves nine

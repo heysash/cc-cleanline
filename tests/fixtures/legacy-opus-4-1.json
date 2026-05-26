@@ -1,0 +1,42 @@
+{
+  "session_id": "55555555-5555-5555-5555-555555555555",
+  "transcript_path": "/tmp/test-legacy-opus-41.jsonl",
+  "cwd": "/Users/test/projects/old-session",
+  "model": {
+    "id": "claude-opus-4-1-20250805",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/old-session",
+    "project_dir": "/Users/test/projects/old-session"
+  },
+  "context_window": {
+    "total_input_tokens": 92000,
+    "total_output_tokens": 3200,
+    "context_window_size": 200000,
+    "used_percentage": 47.2,
+    "remaining_percentage": 52.8
+  },
+  "cost": {
+    "total_cost_usd": 2.10,
+    "total_duration_ms": 720000,
+    "total_api_duration_ms": 95000,
+    "total_lines_added": 52,
+    "total_lines_removed": 18
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 35.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 11.3,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "version": "2.1.150"
+}

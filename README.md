@@ -1,278 +1,205 @@
 ```
-   ____ ____    ____ _                 _     _            
-  / ___/ ___|  / ___| | ___  __ _ _ __ | |   (_)_ __   ___ 
+   ____ ____    ____ _                 _     _
+  / ___/ ___|  / ___| | ___  __ _ _ __ | |   (_)_ __   ___
  | |  | |     | |   | |/ _ \/ _` | '_ \| |   | | '_ \ / _ \
  | |__| |___  | |___| |  __/ (_| | | | | |___| | | | |  __/
   \____\____|  \____|_|\___|\__,_|_| |_|_____|_|_| |_|\___|
 ```
 
-# CC CleanLine - Clean Claude Code Status Line
+# CC CleanLine — a modern status line for Claude Code
 
-A clean, minimalist status line script for Claude Code that embodies the clean code philosophy - clear, readable, purposeful. Designed for developers who value distraction-free, professional status information.
+A modular, opinionated status line for Claude Code that surfaces the
+information you actually need — model, context, rate-limit, cost, plus
+adaptive Worktree / Output-Style / Vim / PR rows — without visual noise.
 
-## Philosophy
+Rewritten in 2026 to consume Claude Code's native statusline JSON fields
+directly (`context_window.*`, `cost.*`, `rate_limits.*`, `worktree.*`,
+`output_style.*`, `vim.*`, `pr.*`, `effort.level`) and to recognise the
+current model line-up: **Opus 4.7** (incl. `[1m]` context), **Sonnet 4.6**,
+**Haiku 4.5**, plus legacy markers for everything older.
 
-CC CleanLine follows the clean code philosophy: **every element serves a purpose, nothing is superfluous**. No decorative clutter, no visual noise - just the essential information you need, presented clearly and professionally.
+## What the status line looks like
 
-This isn't just about looking good (though it does) - it's about cognitive clarity. When your status line is clean and purposeful, your mind stays focused on what matters: your code.
+The core is always three lines; lines 4 and 5 appear only when the
+underlying data is present.
 
-## Screenshot
+```
+● git branch main (+15/-3) ▶ ./cc-cleanline
+★ Opus 4.7 ¹ᴹ ★★★★ 142.3k · 14.2% (1M) ⏱ Reset 2h 43m
+  ● 5h Limit: Medium · $1.23 session
+🌿 worktree: curious-feature ▸ branch: claude/curious-feature
+⚙ style: Explanatory · vim: INSERT · PR #42 ⚠ changes_requested
+```
 
-![Project Preview](assets/img/preview.png "Claude Code Status Line - CC CleanLine")
+- **Line 1** — git status + cwd
+- **Line 2** — model (icon, name, `¹ᴹ` if 1M context, 4-star effort meter) + token usage + reset countdown
+- **Line 3** — 5h rate-limit bucket + session cost
+- **Line 4** *(optional)* — worktree name + branch when inside a Claude Code worktree
+- **Line 5** *(optional)* — output style + Vim mode + PR number/state, in any combination
 
-## Features
+## Install
 
-🧹 **Clean & Minimalist** - Zero visual clutter, maximum information clarity  
-⚙️ **Configurable** - Fully customizable via `cc-cleanline.config.sh`  
-🔮 **Future-Proof** - Designed for extensibility and layout variations  
-🧠 **Intelligent** - Smart session token monitoring and real-time cost tracking  
-🎯 **Focused** - 3-line output: Git + Directory / Login + Model + Time / Tokens + API Costs  
-🌈 **Color-Coded** - Model-specific colors (Sonnet=saddlebrown, Opus=sandybrown)  
-📊 **Cost Tracking** - Accurate daily totals and session costs via ccusage integration  
-🔄 **Git Integration** - Branch detection with real uncommitted changes (+lines/-lines)  
-⚡ **Session Tokens** - 5h Max Tokens tracking with Low/Medium/High thresholds  
-📈 **Context Metrics** - Real-time token usage with flexible display options calculated from JSONL transcript  
+Requires `bash`, `jq`, and (optionally) `git`. macOS + Linux supported.
 
-## Architecture
+```bash
+git clone https://github.com/<your-fork>/cc-cleanline.git ~/.cc-cleanline
+chmod +x ~/.cc-cleanline/cc-cleanline.sh
+```
 
-CC CleanLine follows a **modular architecture** designed for maintainability and LLM compatibility. The main script (`cc-cleanline.sh`) acts as an orchestrator that loads and coordinates specialized modules:
-
-### Core Modules
-
-- **`lib/git-status.sh`** (61 lines) - Git repository detection and branch analysis
-- **`lib/cost-tracking.sh`** (179 lines) - Token usage and API cost calculation via ccusage integration  
-- **`lib/model-detection.sh`** (52 lines) - Claude model identification and color mapping
-- **`lib/context-metrics.sh`** (308 lines) - Real-time token metrics calculated from JSONL transcript with flexible display
-- **`lib/display-formatter.sh`** (119 lines) - Status line output formatting and color application
-- **`lib/happy-mode-integration.sh`** (44 lines) - Easter egg system integration
-
-### Design Philosophy
-
-Each module has a **single responsibility** and is designed for optimal LLM processing. Most modules stay under 180 lines, with larger modules like context-metrics justified by their comprehensive token calculation functionality. The modular design enables:
-
-- **Isolated testing** of individual components
-- **Easier maintenance** with clear boundaries
-- **Flexible customization** without affecting core functionality
-- **Hot-swappable modules** for future extensions
-
-The main script loads all modules at startup and coordinates their execution based on the JSON input from Claude Code.
-
-## Installation
-
-1. Clone this repository:
-
-   ```bash
-   git clone https://github.com/heysash/cc-cleanline.git
-   cd cc-cleanline
-   ```
-
-2. Make executable:
-
-   ```bash
-   chmod +x cc-cleanline.sh
-   ```
-
-3. **Important**: Ensure the `lib/` directory stays intact with all module files - the script requires all modules for proper functionality.
-
-4. Configure Claude Code (see Configuration section)
-
-## Configuration
-
-### Claude Code Settings
-
-**macOS**: `~/.claude/settings.json`
+Then point Claude Code at it in `~/.claude/settings.json`:
 
 ```json
 {
   "statusLine": {
     "type": "command",
-    "command": "bash /path/to/cc-cleanline/cc-cleanline.sh"
+    "command": "~/.cc-cleanline/cc-cleanline.sh",
+    "padding": 1,
+    "refreshInterval": 5
   }
 }
 ```
 
-### Customization
+Restart Claude Code (or `/exit`) and the status line will appear.
 
-CC CleanLine uses a two-tier configuration system for flexible customization:
+## Model support
 
-#### Default Configuration
-The base configuration is in `cc-cleanline.config.sh` which contains all default settings and gets updated when you pull new versions.
+| Pattern (`model.id`)           | Display       | Marker  | Notes                                  |
+| ------------------------------ | ------------- | ------- | -------------------------------------- |
+| `claude-opus-4-7`              | `★ Opus 4.7`  |         | current                                |
+| `claude-opus-4-7[1m]`          | `★ Opus 4.7 ¹ᴹ` | `¹ᴹ`  | 1M context window                      |
+| `claude-opus-4-6`              | `★ Opus 4.6`  | legacy  | dimmed colour                          |
+| `claude-opus-4-5`              | `★ Opus 4.5`  | legacy  |                                        |
+| `claude-opus-4-1-…`            | `★ Opus 4.1`  | legacy  | date-suffixed IDs auto-normalised      |
+| `claude-opus-4-…`              | `★ Opus 4`    | deprecated | retiring in 2026                    |
+| `claude-sonnet-4-6`            | `☆ Sonnet 4.6`|         | current                                |
+| `claude-sonnet-4-5-…`          | `☆ Sonnet 4.5`| legacy  |                                        |
+| `claude-sonnet-4-…`            | `☆ Sonnet 4`  | deprecated |                                     |
+| `claude-haiku-4-5-…`           | `✧ Haiku 4.5` |         | current; sky-blue                      |
+| `claude-haiku-3-5-…`           | `✧ Haiku 3.5` | legacy  |                                        |
+| anything else                  | `● <name>`    |         | falls back to `model.display_name`     |
 
-#### Personal Overrides  
-Create `cc-cleanline.config.local` to override specific settings without affecting the base configuration. This file:
-- Is automatically ignored by git (stays local)
-- Only needs the variables you want to change
-- Takes precedence over default values
+The effort badge appended to the model name is a 4-star meter
+(constant width, filled stars = level — scannable without counting):
 
-**Setup your personal config:**
+| `effort.level` | Badge      |
+| -------------- | ---------- |
+| `low`          | `☆☆☆☆`     |
+| `medium`       | `★☆☆☆`     |
+| `high`         | `★★☆☆`     |
+| `xhigh`        | `★★★☆`     |
+| `max`          | `★★★★`     |
 
-1. Copy the example file:
-   ```bash
-   cp cc-cleanline.config.example cc-cleanline.config.local
-   ```
+## Configuration
 
-2. Edit `cc-cleanline.config.local` and uncomment/modify any values:
-   ```bash
-   # Example personal overrides
-   COLOR_ACTIVE_STATUS='\033[94m'        # Blue instead of green
-   SHOW_FULL_PATH=true                   # Show full directory paths
-   ICON_ACTIVE="►"                       # Different active icon
-   LABEL_MODEL="Model"                   # Custom model label
-   ```
+Two files:
+- `cc-cleanline.config.sh` — defaults, tracked in git.
+- `cc-cleanline.config.local` — your personal overrides, git-ignored.
+  Copy `cc-cleanline.config.example` to get started.
 
-#### Available Settings
+Toggles most users care about:
 
-- **Colors**: Status states, model colors, UI elements
-- **Icons**: Status indicators (●, ○, ⚠, ✓)  
-- **Labels**: Login status, context messages, model names
-- **Display**: Path format, cost visibility, feature toggles
-- **Context Metrics**: Flexible display system with configurable token and percentage display
-- **Performance**: Cache settings and update intervals
+| Variable                       | Default | Effect                                              |
+| ------------------------------ | ------- | --------------------------------------------------- |
+| `SHOW_FULL_PATH`               | `false` | `false` → `./dirname`, `true` → full absolute path  |
+| `SHOW_TOKEN_ABSOLUTE`          | `true`  | `50.0k` in the context segment                      |
+| `SHOW_TOKEN_PERCENT_TOTAL`     | `true`  | `25.0%` in the context segment                      |
+| `SHOW_EFFORT_BADGE`            | `true`  | Append `··· / ▸max` next to the model name          |
+| `SHOW_1M_BADGE`                | `true`  | Append `¹ᴹ` for `[1m]` variants                     |
+| `SHOW_LEGACY_MARKER`           | `true`  | Append `⚠legacy` for deprecated models              |
+| `SHOW_WORKTREE_LINE`           | `true`  | Render line 4 when in a Claude Code worktree        |
+| `SHOW_EXTRAS_LINE`             | `true`  | Render line 5 (style / vim / PR)                    |
+| `SHOW_VERSION`                 | `false` | Append `v2.1.150` to line 5                         |
+| `HAPPY_MODE`                   | `false` | `true`/`test` — see Happy Mode below                |
 
-The local config only needs variables you want to change - all others use the defaults.
+## Happy Mode
 
-#### Context Metrics System
-CC CleanLine features a sophisticated context metrics system that calculates token usage directly from Claude Code's JSONL transcript file. This provides accurate, real-time token tracking with intelligent caching and comprehensive display options.
-
-**Key Features:**
-
-- **Real-time JSONL Parsing**: Extracts token counts directly from Claude Code's transcript data
-- **Intelligent Caching**: 5-second cache with file modification time detection for performance
-- **Token Aggregation**: Sums input, output, and cached tokens across the entire conversation
-- **Context Window Tracking**: Monitors the current context length from the most recent main chain entry
-- **Flexible Display Options**: Two display modes with extensive configuration
-
-**Display Systems:**
-
-*Primary: Flexible Model + Token Display*
-
-The default system combines model information with token metrics in a clean, configurable format:
-
-- `SHOW_MODEL_NAME=true` → Display model name ("Sonnet 4", "Opus 4.1")
-- `SHOW_TOKEN_ABSOLUTE=true` → Show current context tokens ("59.0k" or "59.0k/200k")
-- `SHOW_TOKEN_PERCENT_TOTAL=true` → Show percentage of 200k limit ("29.5% 200k")
-- `SHOW_TOKEN_PERCENT_USABLE=true` → Show percentage of 160k compression trigger ("36.9% 160k")
-
-
-**Understanding the 160k Compression Trigger:**
-This represents Claude Code's automatic context compression point. When the context window reaches approximately 160k tokens, Claude Code compresses the chat history to create space for continued conversation within the 200k total limit.
-
-**Display Format Examples:**
+Optional easter eggs (Matrix references, fortune cookies, time-based
+surprises, achievements). Off by default. To enable interactively:
 
 ```bash
-# Full flexible display (all components):
-"Sonnet 4 | 59.0k | 29.5% 200k | 36.9% 160k"
-
-# Extended format (no percentages enabled):
-"Sonnet 4 | 59.0k/200k"
-
-# Percentage-only display:
-"Sonnet 4 | 29.5% 200k | 36.9% 160k"
-
+./happy-mode-tools.sh enable
+./happy-mode-tools.sh test       # run the bats suite
+./happy-mode-tools.sh disable
 ```
 
-**Performance & Caching:**
+Triggers, cooldown, and content live under `happy-mode/`:
 
-- 5-second intelligent cache with file modification detection
-- Efficient jq-based JSONL parsing with token aggregation
-- Automatic fallback when transcript data is unavailable
+- `happy-mode/engine.sh` — float-safe `hits_chance`, cooldown (under
+  `$XDG_CACHE_HOME/cc-cleanline/cooldown`), trigger registry.
+- `happy-mode/rainbow.sh` — isolated `rainbow_text` utility.
+- `happy-mode/content/*.txt` — quotes, time triggers, achievements.
+  Drop your own lines into any of these files; lines starting with `#`
+  and blank lines are ignored.
 
-## Output Examples
+Cooldown defaults to 15 minutes between surprises so they stay subtle.
 
-**Active development session (flexible display system):**
+## Testing & development
 
-```text
-● git branch main (+15/-3) ▶ ./project
-● Logged-In ★ Opus 4.1 | 59.0k | 29.5% 200k | 36.9% 160k ⏱ Next Session 2h 43m  
-  ● 5h Max Tokens Low ⚡API Costs Included
+```bash
+brew install bats-core shellcheck jq      # macOS
+sudo apt install bats shellcheck jq       # Debian/Ubuntu
+
+bats --recursive tests/                   # full suite
+shellcheck **/*.sh                        # static analysis
 ```
 
-**Active development session (extended token format):**
+Snapshot updates after intentional formatting changes:
 
-```text
-● git branch main (+15/-3) ▶ ./project
-● Logged-In ★ Opus 4.1 | 59.0k/200k ⏱ Next Session 2h 43m  
-  ● 5h Max Tokens Low ⚡API Costs Included
+```bash
+BATS_UPDATE_SNAPSHOTS=1 bats tests/integration/
 ```
 
-**Active development session (without context data):**
+The CI workflow (`.github/workflows/ci.yml`) runs shellcheck and bats on
+both Ubuntu and macOS for every push and PR.
 
-```text
-● git branch main (+15/-3) ▶ ./project
-● Logged-In ★ Opus 4.1 ⏱ Next Session 2h 43m  
-  ● 5h Max Tokens Low ⚡API Costs Included
+## Architecture
+
+```
+cc-cleanline.sh                  # orchestration: parse JSON once, render
+cc-cleanline.config.sh           # defaults
+cc-cleanline.config.local        # your overrides (gitignored)
+lib/
+  git-status.sh                  # git branch + change counts
+  model-detection.sh             # model.id pattern matching
+  context-display.sh             # token count + window %
+  usage-tracking.sh              # cost + 5h rate-limit + reset countdown
+  extras-display.sh              # worktree / style / vim / PR
+  display-formatter.sh           # adaptive 3-5 line composer
+  happy-mode-integration.sh      # bridge to happy-mode engine
+happy-mode/
+  engine.sh                      # core: cooldown, triggers, achievements
+  rainbow.sh                     # ANSI rainbow utility
+  content/                       # *.txt content files
+tests/
+  fixtures/*.json                # realistic Claude Code stdin samples
+  unit/*.bats                    # per-module unit tests
+  happy-mode/*.bats              # engine/integration/achievements
+  integration/end-to-end.bats    # full-pipeline snapshots
+  snapshots/*.txt                # rendered output baselines
+  helpers.bash                   # shared assertions + snapshot infra
 ```
 
-**Outside git repo:**
+Each `lib/*.sh` module returns `text|color` on stdout; the formatter
+stitches them together. No external commands beyond `jq`, `git`, `awk`,
+`sed`, `date` — and only what's already on every developer machine.
 
-```text
-○ no git repository ▶ ./scratch
-○ Not logged in ☆ Sonnet 4 ⏱ Next Session 1h 15m
-  ⚡API $3.80 (current session)
-```
+## Migration from the pre-2026 version
 
-### Clean Color Scheme
+If you used a previous version of cc-cleanline:
 
-- **Bright Green** (active states): git branch, logged in, Low token usage
-- **Orange** (Medium token usage): matches current model color for consistency
-- **Red** (attention states): no git, logged out, High token usage  
-- **Sandybrown**: ★ Opus 4.1 model
-- **Saddlebrown**: ☆ Sonnet 4 model
-- **Standard Gray**: Directory paths, times, costs, neutral text
-
-## Requirements
-
-### Required
-
-- Bash shell
-- `jq` for JSON parsing  
-- Claude Code CLI
-
-### Optional
-
-- `git` for branch detection
-- `bunx`/`npx` for ccusage cost tracking
-
-## Technical Details
-
-### Modular Architecture
-- **Main Script**: `cc-cleanline.sh` (128 lines) orchestrates module loading and execution
-- **Module Loading**: Automatic discovery and sourcing of all `lib/*.sh` files at startup
-- **Configuration**: Two-tier system with base config and local overrides, loaded before modules
-- **Error Handling**: Graceful fallbacks when optional modules or dependencies are missing
-
-### Core Functionality
-
-- **Context Metrics**: `lib/context-metrics.sh` calculates real-time token usage from JSONL transcript with intelligent caching, file modification tracking, and flexible display system
-- **Session Token Tracking**: `lib/cost-tracking.sh` monitors 5h session usage with model-matched color thresholds  
-- **Cost Integration**: Seamless [ccusage](https://github.com/ryoppippi/ccusage) integration with precision jq calculations
-- **Git Analysis**: `lib/git-status.sh` provides intelligent branch detection with real change tracking (+/-lines)
-- **Model Detection**: `lib/model-detection.sh` identifies Claude models with automatic color mapping
-- **Display Coordination**: `lib/display-formatter.sh` ensures consistent 3-line output format
-
-### Happy Mode System
-
-- **Modular Integration**: `lib/happy-mode-integration.sh` cleanly separates easter egg functionality
-- **Standalone Tools**: `happy-mode.sh` and `happy-mode-tools.sh` provide complete easter egg experience
-- **Configuration Hooks**: Seamlessly activated via configuration without main script modification
-
-## Experimental Features 🐰
-
-*"Curiouser and curiouser..." - Alice*
-
-Some say there are hidden pathways in the configuration files, waiting for the truly curious developer to discover them. What secrets lie behind innocent-looking settings? What happens when boredom meets code?
-
-> *Follow the white rabbit...*  
-> *The rabbit hole goes deeper than you think.*
-
-For those who dare to explore beyond the clean facade, remember: not all features are documented, and not all documentation tells the whole truth. Sometimes the most delightful discoveries come from reading between the lines... or perhaps from a simple boolean that asks "What's this?"
-
-*The Matrix has CC CleanLine, and CC CleanLine has you.*
-
----
-
-**Hint for the sleepless coders:** The configuration holds more than colors and labels. Those who work past midnight might find unexpected companions in their status line. Easter eggs are not just for Sunday.
+- `lib/context-metrics.sh` and `lib/cost-tracking.sh` are **gone**.
+  The data they computed via JSONL parsing and `ccusage` is now read
+  straight from the statusline JSON.
+- Your `cc-cleanline.config.local` may reference variables that no
+  longer exist (`SHOW_TOKEN_PERCENT_USABLE`, `SHOW_API_COSTS`,
+  `SHOW_API_COSTS_WHEN_INCLUDED`, `CONTEXT_METRICS_CACHE_TTL`,
+  `SHOW_MODEL_NAME`). They're harmless — just unused.
+- Model names display correctly now (the old version showed every
+  Opus as "Opus 4.1" and every Sonnet as "Sonnet 4").
+- `ccusage` is no longer required.
+- Happy Mode state moved from `/tmp/.cc-happy-*` to
+  `$XDG_CACHE_HOME/cc-cleanline/`.
 
 ## License
 
-MIT License
+MIT — see `LICENSE`.
