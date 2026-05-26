@@ -68,14 +68,22 @@ setup() {
 }
 
 @test "render_effort_badge: badge width stays constant across all levels" {
-    # Same number of stars (4) regardless of fill level → constant width
-    # makes the badge scannable without counting.
-    local lvl
+    # Same star count (4) regardless of fill level → constant width
+    # makes the badge scannable without counting. We compare widths to each
+    # other rather than to an absolute number, because `${#var}` counts
+    # characters or bytes depending on the active locale (UTF-8 → chars,
+    # POSIX/C → bytes), and that varies between dev machine and CI.
+    local first_len="" lvl badge
     for lvl in low medium high xhigh max; do
-        local badge
         badge=$(render_effort_badge "$lvl")
-        # Star runes are 3 bytes each in UTF-8 → 4 stars + leading space = 13 bytes
-        [ "${#badge}" -eq 13 ]
+        if [[ -z "$first_len" ]]; then
+            first_len="${#badge}"
+            continue
+        fi
+        if [ "${#badge}" -ne "$first_len" ]; then
+            echo "Inconsistent badge width: '$lvl' is ${#badge}, expected $first_len" >&2
+            return 1
+        fi
     done
 }
 
