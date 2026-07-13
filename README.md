@@ -19,8 +19,8 @@ adaptive Worktree / Output-Style / Vim / PR rows — without visual noise.
 Rewritten in 2026 to consume Claude Code's native statusline JSON fields
 directly (`context_window.*`, `cost.*`, `rate_limits.*`, `worktree.*`,
 `output_style.*`, `vim.*`, `pr.*`, `effort.level`) and to recognise the
-current model line-up: **Opus 4.7** (incl. `[1m]` context), **Sonnet 4.6**,
-**Haiku 4.5**, plus legacy markers for everything older.
+current model line-up: **Fable 5**, **Opus 4.8** (incl. `[1m]` context),
+**Sonnet 5**, **Haiku 4.5**, plus legacy markers for everything older.
 
 ## What the status line looks like
 
@@ -29,7 +29,7 @@ underlying data is present.
 
 ```
 ● git branch main (+15/-3) ▶ ./cc-cleanline
-★ Opus 4.7 ¹ᴹ ★★★★ 142.3k · 14.2% (1M) ⏱ Reset 2h 43m
+★ Opus 4.8 ¹ᴹ ★★★★ 142.3k · 14.2% (1M) ⏱ Reset 2h 43m
   ● 5h Limit: Medium · $1.23 session
 🌿 worktree: curious-feature ▸ branch: claude/curious-feature
 ⚙ style: Explanatory · vim: INSERT · PR #42 ⚠ changes_requested
@@ -69,18 +69,24 @@ Restart Claude Code (or `/exit`) and the status line will appear.
 
 | Pattern (`model.id`)           | Display       | Marker  | Notes                                  |
 | ------------------------------ | ------------- | ------- | -------------------------------------- |
-| `claude-opus-4-7`              | `★ Opus 4.7`  |         | current                                |
-| `claude-opus-4-7[1m]`          | `★ Opus 4.7 ¹ᴹ` | `¹ᴹ`  | 1M context window                      |
-| `claude-opus-4-6`              | `★ Opus 4.6`  | legacy  | dimmed colour                          |
+| `claude-fable-5`               | `✦ Fable 5`   |         | current top tier; lavender             |
+| `claude-opus-4-8`              | `★ Opus 4.8`  |         | current                                |
+| `claude-opus-4-8[1m]`          | `★ Opus 4.8 ¹ᴹ` | `¹ᴹ`  | 1M context window                      |
+| `claude-opus-4-7`              | `★ Opus 4.7`  | legacy  | dimmed colour                          |
+| `claude-opus-4-6`              | `★ Opus 4.6`  | legacy  |                                        |
 | `claude-opus-4-5`              | `★ Opus 4.5`  | legacy  |                                        |
 | `claude-opus-4-1-…`            | `★ Opus 4.1`  | legacy  | date-suffixed IDs auto-normalised      |
 | `claude-opus-4-…`              | `★ Opus 4`    | deprecated | retiring in 2026                    |
-| `claude-sonnet-4-6`            | `☆ Sonnet 4.6`|         | current                                |
+| `claude-sonnet-5`              | `☆ Sonnet 5`  |         | current                                |
+| `claude-sonnet-4-6`            | `☆ Sonnet 4.6`| legacy  |                                        |
 | `claude-sonnet-4-5-…`          | `☆ Sonnet 4.5`| legacy  |                                        |
 | `claude-sonnet-4-…`            | `☆ Sonnet 4`  | deprecated |                                     |
 | `claude-haiku-4-5-…`           | `✧ Haiku 4.5` |         | current; sky-blue                      |
-| `claude-haiku-3-5-…`           | `✧ Haiku 3.5` | legacy  |                                        |
 | anything else                  | `● <name>`    |         | falls back to `model.display_name`     |
+
+The `¹ᴹ` badge is model-agnostic: any `…[1m]` ID renders it, current or
+legacy. Models Anthropic has retired entirely (e.g. Haiku 3.5, retired
+2026-02-19) are dropped from the table and render via the fallback row.
 
 The effort badge appended to the model name is a 4-star meter
 (constant width, filled stars = level — scannable without counting):
@@ -107,7 +113,7 @@ Toggles most users care about:
 | `SHOW_FULL_PATH`               | `false` | `false` → `./dirname`, `true` → full absolute path  |
 | `SHOW_TOKEN_ABSOLUTE`          | `true`  | `50.0k` in the context segment                      |
 | `SHOW_TOKEN_PERCENT_TOTAL`     | `true`  | `25.0%` in the context segment                      |
-| `SHOW_EFFORT_BADGE`            | `true`  | Append `··· / ▸max` next to the model name          |
+| `SHOW_EFFORT_BADGE`            | `true`  | Append the 4-star effort meter (`☆☆☆☆`…`★★★★`)      |
 | `SHOW_1M_BADGE`                | `true`  | Append `¹ᴹ` for `[1m]` variants                     |
 | `SHOW_LEGACY_MARKER`           | `true`  | Append `⚠legacy` for deprecated models              |
 | `SHOW_WORKTREE_LINE`           | `true`  | Render line 4 when in a Claude Code worktree        |

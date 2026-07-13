@@ -43,6 +43,26 @@ run_snapshot() {
     assert_snapshot "$name" "$actual"
 }
 
+@test "snapshot: fable-5" {
+    require_jq
+    run_snapshot fable-5
+}
+
+@test "snapshot: opus-4-8-basic" {
+    require_jq
+    run_snapshot opus-4-8-basic
+}
+
+@test "snapshot: opus-4-8-1m-context" {
+    require_jq
+    run_snapshot opus-4-8-1m-context
+}
+
+@test "snapshot: sonnet-5" {
+    require_jq
+    run_snapshot sonnet-5
+}
+
 @test "snapshot: opus-4-7-basic" {
     require_jq
     run_snapshot opus-4-7-basic

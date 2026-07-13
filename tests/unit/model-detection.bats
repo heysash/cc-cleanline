@@ -97,20 +97,27 @@ setup() {
 
 # --- get_model_info: current generation models --------------------------------
 
-@test "get_model_info: Opus 4.7 → '★ Opus 4.7|<color>'" {
-    result=$(get_model_info 'claude-opus-4-7')
-    assert_contains "$result" '★ Opus 4.7'
+@test "get_model_info: Fable 5 → '✦ Fable 5' (current top tier)" {
+    result=$(get_model_info 'claude-fable-5')
+    assert_contains "$result" '✦ Fable 5'
     assert_not_contains "$result" 'legacy'
 }
 
-@test "get_model_info: Opus 4.7 with [1m] → adds ¹ᴹ badge" {
-    result=$(get_model_info 'claude-opus-4-7[1m]')
-    assert_contains "$result" '★ Opus 4.7 ¹ᴹ'
+@test "get_model_info: Opus 4.8 → '★ Opus 4.8|<color>'" {
+    result=$(get_model_info 'claude-opus-4-8')
+    assert_contains "$result" '★ Opus 4.8'
+    assert_not_contains "$result" 'legacy'
 }
 
-@test "get_model_info: Sonnet 4.6 → '☆ Sonnet 4.6'" {
-    result=$(get_model_info 'claude-sonnet-4-6')
-    assert_contains "$result" '☆ Sonnet 4.6'
+@test "get_model_info: Opus 4.8 with [1m] → adds ¹ᴹ badge" {
+    result=$(get_model_info 'claude-opus-4-8[1m]')
+    assert_contains "$result" '★ Opus 4.8 ¹ᴹ'
+    assert_not_contains "$result" 'legacy'
+}
+
+@test "get_model_info: Sonnet 5 → '☆ Sonnet 5'" {
+    result=$(get_model_info 'claude-sonnet-5')
+    assert_contains "$result" '☆ Sonnet 5'
     assert_not_contains "$result" 'legacy'
 }
 
@@ -121,6 +128,24 @@ setup() {
 }
 
 # --- get_model_info: legacy models --------------------------------------------
+
+@test "get_model_info: Opus 4.7 → legacy marker (demoted by 4.8)" {
+    result=$(get_model_info 'claude-opus-4-7')
+    assert_contains "$result" 'Opus 4.7'
+    assert_contains "$result" 'legacy'
+}
+
+@test "get_model_info: Opus 4.7 with [1m] → keeps ¹ᴹ badge alongside legacy" {
+    result=$(get_model_info 'claude-opus-4-7[1m]')
+    assert_contains "$result" 'Opus 4.7 ¹ᴹ'
+    assert_contains "$result" 'legacy'
+}
+
+@test "get_model_info: Sonnet 4.6 → legacy marker (demoted by Sonnet 5)" {
+    result=$(get_model_info 'claude-sonnet-4-6')
+    assert_contains "$result" 'Sonnet 4.6'
+    assert_contains "$result" 'legacy'
+}
 
 @test "get_model_info: Opus 4.6 → legacy marker" {
     result=$(get_model_info 'claude-opus-4-6')
@@ -159,21 +184,29 @@ setup() {
     assert_contains "$result" 'claude-mystery-1-0'
 }
 
+@test "get_model_info: retired Haiku 3.5 → fallback (case entry removed)" {
+    # Anthropic retired Haiku 3.5 on 2026-02-19; the dedicated case entry
+    # is gone, so the ID renders via the display_name fallback instead.
+    result=$(get_model_info 'claude-haiku-3-5' 'Haiku 3.5')
+    assert_contains "$result" '●'
+    assert_not_contains "$result" '✧'
+}
+
 # --- get_model_info: effort badges --------------------------------------------
 
 @test "get_model_info: appends effort star meter when level given" {
-    result=$(get_model_info 'claude-opus-4-7' 'Opus' 'max')
+    result=$(get_model_info 'claude-opus-4-8' 'Opus' 'max')
     assert_contains "$result" '★★★★'
 }
 
 @test "get_model_info: effort 'high' renders as '★★☆☆'" {
-    result=$(get_model_info 'claude-opus-4-7' 'Opus' 'high')
-    assert_contains "$result" 'Opus 4.7 ★★☆☆'
+    result=$(get_model_info 'claude-opus-4-8' 'Opus' 'high')
+    assert_contains "$result" 'Opus 4.8 ★★☆☆'
 }
 
 @test "get_model_info: effort badge skipped when SHOW_EFFORT_BADGE=false" {
     SHOW_EFFORT_BADGE=false
-    result=$(get_model_info 'claude-opus-4-7' 'Opus' 'max')
+    result=$(get_model_info 'claude-opus-4-8' 'Opus' 'max')
     # The Opus icon is also '★', so check for the badge-specific 4-star run.
     assert_not_contains "$result" '★★'
 }
@@ -189,4 +222,26 @@ setup() {
 @test "guard: opus-4-1 case does NOT swallow a hypothetical opus-4-10" {
     result=$(get_model_info 'claude-opus-4-10')
     assert_not_contains "$result" 'Opus 4.1'
+}
+
+@test "guard: opus-4-8 case does NOT swallow a hypothetical opus-4-80" {
+    result=$(get_model_info 'claude-opus-4-80')
+    assert_not_contains "$result" 'Opus 4.8'
+}
+
+@test "guard: sonnet-5 case does NOT swallow a hypothetical sonnet-5-5" {
+    # *sonnet-5 is a major-only pattern; a future sonnet-5-5 minor must
+    # get its own entry instead of collapsing into the major.
+    result=$(get_model_info 'claude-sonnet-5-5')
+    assert_not_contains "$result" 'Sonnet 5'
+}
+
+@test "guard: sonnet-5 case does NOT swallow a hypothetical sonnet-50" {
+    result=$(get_model_info 'claude-sonnet-50')
+    assert_not_contains "$result" 'Sonnet 5'
+}
+
+@test "guard: fable-5 case does NOT swallow a hypothetical fable-50" {
+    result=$(get_model_info 'claude-fable-50')
+    assert_not_contains "$result" 'Fable 5'
 }

@@ -1,3 +1,3 @@
 ○ no git repository ▶ ./webapp
-☆ Sonnet 4.6 ⚠legacy 78.0k · 39.0% ⏱ Reset 4h 30m
+☆ Sonnet 5 78.0k · 39.0% ⏱ Reset 4h 30m
   ● 5h Limit: Low · $0.27 session

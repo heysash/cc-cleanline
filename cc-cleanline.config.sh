@@ -20,6 +20,7 @@ COLOR_ORANGE='\033[38;5;208m'           # Orange         — Medium usage
 COLOR_RED='\033[38;5;196m'              # Red            — High usage
 
 # Model colours
+COLOR_FABLE='\033[38;5;141m'            # Lavender       — Fable (current top tier)
 COLOR_OPUS='\033[38;5;215m'             # Sandybrown     — Opus (current)
 COLOR_OPUS_LEGACY='\033[38;5;180m'      # Dimmed         — Opus (legacy)
 COLOR_SONNET='\033[38;5;130m'           # Saddlebrown    — Sonnet (current)
@@ -54,7 +55,7 @@ SHOW_TOKEN_PERCENT_TOTAL=true           # "29.5%" in the context segment
 
 # Model-name decorations
 SHOW_EFFORT_BADGE=true                  # 4-star effort meter (☆☆☆☆ … ★★★★) next to model
-SHOW_1M_BADGE=true                      # ¹ᴹ next to Opus 4.7 etc. when [1m]
+SHOW_1M_BADGE=true                      # ¹ᴹ next to the model name for [1m] IDs
 SHOW_LEGACY_MARKER=true                 # ⚠legacy hint for old model IDs
 
 # Adaptive optional lines

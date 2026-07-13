@@ -1,4 +1,4 @@
 ○ no git repository ▶ ./example
-★ Opus 4.7 65.0k · 32.5% ⏱ Reset 4h 30m
+★ Opus 4.8 65.0k · 32.5% ⏱ Reset 4h 30m
   ● 5h Limit: Low · $0.74 session
 PR #42 ⚠ changes_requested

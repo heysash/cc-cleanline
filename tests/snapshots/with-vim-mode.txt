@@ -1,4 +1,4 @@
 ○ no git repository ▶ ./example
-☆ Sonnet 4.6 35.0k · 17.5% ⏱ Reset 4h 30m
+☆ Sonnet 5 35.0k · 17.5% ⏱ Reset 4h 30m
   ● 5h Limit: Low · $0.12 session
 vim: INSERT
