@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/cover.png" alt="CC CleanLine — a modern status line for Claude Code" width="100%">
+</p>
+
 ```
    ____ ____    ____ _                 _     _
   / ___/ ___|  / ___| | ___  __ _ _ __ | |   (_)_ __   ___
