@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/cover.png" alt="CC CleanLine — a modern status line for Claude Code" width="100%">
+  <img src="assets/cover.webp" alt="CC CleanLine — a modern status line for Claude Code" width="100%">
 </p>
 
 ```
