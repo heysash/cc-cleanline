@@ -20,7 +20,7 @@
 # Hide the context-window percentage (only show the absolute count).
 # SHOW_TOKEN_PERCENT_TOTAL=false
 
-# Hide the effort badge (· / ·· / ··· / ···· / ▸max) next to the model.
+# Hide the 4-star effort meter (☆☆☆☆ … ★★★★) next to the model.
 # SHOW_EFFORT_BADGE=false
 
 # Hide the ¹ᴹ badge for [1m] context-window variants.
