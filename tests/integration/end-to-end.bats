@@ -43,6 +43,21 @@ run_snapshot() {
     assert_snapshot "$name" "$actual"
 }
 
+@test "snapshot: fable-5-1" {
+    require_jq
+    run_snapshot fable-5-1
+}
+
+@test "snapshot: opus-5-basic" {
+    require_jq
+    run_snapshot opus-5-basic
+}
+
+@test "snapshot: opus-5-1m-context" {
+    require_jq
+    run_snapshot opus-5-1m-context
+}
+
 @test "snapshot: fable-5" {
     require_jq
     run_snapshot fable-5
@@ -83,9 +98,9 @@ run_snapshot() {
     run_snapshot haiku-4-5
 }
 
-@test "snapshot: legacy-opus-4-1" {
+@test "snapshot: legacy-opus-4-5" {
     require_jq
-    run_snapshot legacy-opus-4-1
+    run_snapshot legacy-opus-4-5
 }
 
 @test "snapshot: with-worktree" {

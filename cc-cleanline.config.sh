@@ -21,13 +21,13 @@ COLOR_RED='\033[38;5;196m'              # Red            — High usage
 
 # Model colours
 COLOR_FABLE='\033[38;5;141m'            # Lavender       — Fable (current top tier)
+COLOR_FABLE_LEGACY='\033[38;5;104m'     # Dimmed         — Fable (legacy)
 COLOR_OPUS='\033[38;5;215m'             # Sandybrown     — Opus (current)
 COLOR_OPUS_LEGACY='\033[38;5;180m'      # Dimmed         — Opus (legacy)
 COLOR_SONNET='\033[38;5;130m'           # Saddlebrown    — Sonnet (current)
 COLOR_SONNET_LEGACY='\033[38;5;101m'    # Dimmed         — Sonnet (legacy)
 COLOR_HAIKU='\033[38;5;117m'            # Sky-blue       — Haiku (current)
 COLOR_HAIKU_LEGACY='\033[38;5;110m'     # Dimmed         — Haiku (legacy)
-COLOR_DEPRECATED='\033[38;5;240m'       # Dark grey      — Deprecated models
 COLOR_DEFAULT_MODEL='\033[38;5;248m'    # Light grey     — Unknown model
 
 # UI element colours

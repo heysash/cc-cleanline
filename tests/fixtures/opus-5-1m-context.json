@@ -1,0 +1,42 @@
+{
+  "session_id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+  "transcript_path": "/tmp/test-opus-5-1m.jsonl",
+  "cwd": "/Users/test/projects/large-codebase",
+  "model": {
+    "id": "claude-opus-5[1m]",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/large-codebase",
+    "project_dir": "/Users/test/projects/large-codebase"
+  },
+  "context_window": {
+    "total_input_tokens": 320000,
+    "total_output_tokens": 5400,
+    "context_window_size": 1000000,
+    "used_percentage": 32.5,
+    "remaining_percentage": 67.5
+  },
+  "cost": {
+    "total_cost_usd": 3.85,
+    "total_duration_ms": 1450000,
+    "total_api_duration_ms": 320000,
+    "total_lines_added": 187,
+    "total_lines_removed": 45
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 52.3,
+      "resets_at": 1748279580
+    },
+    "seven_day": {
+      "used_percentage": 18.7,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": true,
+  "output_style": {
+    "name": "default"
+  },
+  "version": "2.1.150"
+}

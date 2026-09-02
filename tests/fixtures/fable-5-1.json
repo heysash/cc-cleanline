@@ -1,0 +1,42 @@
+{
+  "session_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+  "transcript_path": "/tmp/test-fable-5-1.jsonl",
+  "cwd": "/Users/test/projects/research",
+  "model": {
+    "id": "claude-fable-5-1",
+    "display_name": "Fable"
+  },
+  "workspace": {
+    "current_dir": "/Users/test/projects/research",
+    "project_dir": "/Users/test/projects/research"
+  },
+  "context_window": {
+    "total_input_tokens": 120000,
+    "total_output_tokens": 4800,
+    "context_window_size": 1000000,
+    "used_percentage": 12.5,
+    "remaining_percentage": 87.5
+  },
+  "cost": {
+    "total_cost_usd": 2.10,
+    "total_duration_ms": 890000,
+    "total_api_duration_ms": 210000,
+    "total_lines_added": 64,
+    "total_lines_removed": 18
+  },
+  "rate_limits": {
+    "five_hour": {
+      "used_percentage": 31.0,
+      "resets_at": 1748286000
+    },
+    "seven_day": {
+      "used_percentage": 12.4,
+      "resets_at": 1748787600
+    }
+  },
+  "exceeds_200k_tokens": false,
+  "output_style": {
+    "name": "default"
+  },
+  "version": "2.1.150"
+}

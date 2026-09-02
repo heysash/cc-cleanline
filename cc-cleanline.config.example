@@ -26,7 +26,7 @@
 # Hide the ¹ᴹ badge for [1m] context-window variants.
 # SHOW_1M_BADGE=false
 
-# Hide the ⚠legacy hint for deprecated model IDs.
+# Hide the ⚠legacy hint for legacy model IDs.
 # SHOW_LEGACY_MARKER=false
 
 # Suppress line 4 (worktree info) even when a worktree is active.
@@ -45,6 +45,9 @@
 
 # Use a different colour for the current Opus generation.
 # COLOR_OPUS='\033[38;5;208m'
+
+# Use a different dimmed colour for the legacy Fable generation.
+# COLOR_FABLE_LEGACY='\033[38;5;139m'
 
 # ---- Icons ----------------------------------------------------------
 

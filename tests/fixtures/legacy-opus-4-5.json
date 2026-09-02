@@ -1,9 +1,9 @@
 {
   "session_id": "55555555-5555-5555-5555-555555555555",
-  "transcript_path": "/tmp/test-legacy-opus-41.jsonl",
+  "transcript_path": "/tmp/test-legacy-opus-45.jsonl",
   "cwd": "/Users/test/projects/old-session",
   "model": {
-    "id": "claude-opus-4-1-20250805",
+    "id": "claude-opus-4-5-20251101",
     "display_name": "Opus"
   },
   "workspace": {

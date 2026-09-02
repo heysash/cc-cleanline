@@ -58,22 +58,23 @@ get_model_info() {
     local display icon color
     local is_legacy=false
 
-    # Current models sit above their legacy siblings; the bare *opus-4 /
-    # *sonnet-4 entries are deprecated catch-alls and must stay last in
-    # their family. Retired models (e.g. haiku-3-5, retired 2026-02-19)
-    # are removed entirely and fall through to the display_name fallback.
+    # Current models sit above their legacy siblings; the bare major-only
+    # patterns (*opus-5, *fable-5) must stay last in their family so a
+    # minor release such as fable-5-1 is matched by its own entry first.
+    # Retired models (haiku-3-5 retired 2026-02-19, opus-4 / sonnet-4
+    # retired 2026-06-15, opus-4-1 retired 2026-08-05) are removed
+    # entirely and fall through to the display_name fallback.
     case "$stripped_id" in
-        *fable-5)    display="Fable 5";    icon="✦"; color="$COLOR_FABLE" ;;
-        *opus-4-8)   display="Opus 4.8";   icon="★"; color="$COLOR_OPUS" ;;
+        *fable-5-1)  display="Fable 5.1";  icon="✦"; color="$COLOR_FABLE" ;;
+        *fable-5)    display="Fable 5";    icon="✦"; color="$COLOR_FABLE_LEGACY";  is_legacy=true ;;
+        *opus-5)     display="Opus 5";     icon="★"; color="$COLOR_OPUS" ;;
+        *opus-4-8)   display="Opus 4.8";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
         *opus-4-7)   display="Opus 4.7";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
         *opus-4-6)   display="Opus 4.6";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
         *opus-4-5)   display="Opus 4.5";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
-        *opus-4-1)   display="Opus 4.1";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
-        *opus-4)     display="Opus 4";     icon="★"; color="$COLOR_DEPRECATED";   is_legacy=true ;;
         *sonnet-5)   display="Sonnet 5";   icon="☆"; color="$COLOR_SONNET" ;;
         *sonnet-4-6) display="Sonnet 4.6"; icon="☆"; color="$COLOR_SONNET_LEGACY"; is_legacy=true ;;
         *sonnet-4-5) display="Sonnet 4.5"; icon="☆"; color="$COLOR_SONNET_LEGACY"; is_legacy=true ;;
-        *sonnet-4)   display="Sonnet 4";   icon="☆"; color="$COLOR_DEPRECATED";    is_legacy=true ;;
         *haiku-4-5)  display="Haiku 4.5";  icon="✧"; color="$COLOR_HAIKU" ;;
         *)
             display="${display_name:-${stripped_id}}"
