@@ -318,13 +318,12 @@ setup() {
     assert_not_contains "$result" 'Opus 4.8'
 }
 
-@test "guard: opus-5-5 is matched by its own entry, never the legacy *opus-5" {
-    # *opus-5 is a major-only pattern; end-anchoring keeps the opus-5-5
-    # minor out of it, so Opus 5.5 renders current in the current colour.
+@test "guard: opus-5-5 is matched by its own entry, never the major-only *opus-5" {
+    # *opus-5 would render "Opus 5"; end-anchoring keeps the opus-5-5 minor
+    # out of it. Status-independent on purpose — current/legacy is asserted
+    # in the tier blocks, so this guard survives the next demotion.
     result=$(get_model_info 'claude-opus-5-5')
-    assert_contains "$result" 'Opus 5.5'
-    assert_not_contains "$result" 'legacy'
-    assert_contains "$result" "|${COLOR_OPUS}"
+    assert_contains "$result" '★ Opus 5.5'
 }
 
 @test "guard: opus-5 case does NOT swallow a hypothetical opus-50" {
@@ -344,13 +343,11 @@ setup() {
     assert_not_contains "$result" 'Opus 5'
 }
 
-@test "guard: sonnet-5-5 is matched by its own entry, never the legacy *sonnet-5" {
-    # *sonnet-5 is a major-only pattern; end-anchoring keeps the sonnet-5-5
-    # minor out of it, so Sonnet 5.5 renders current in the current colour.
+@test "guard: sonnet-5-5 is matched by its own entry, never the major-only *sonnet-5" {
+    # *sonnet-5 would render "Sonnet 5"; end-anchoring keeps the sonnet-5-5
+    # minor out of it. Status-independent on purpose, like the opus guard.
     result=$(get_model_info 'claude-sonnet-5-5')
-    assert_contains "$result" 'Sonnet 5.5'
-    assert_not_contains "$result" 'legacy'
-    assert_contains "$result" "|${COLOR_SONNET}"
+    assert_contains "$result" '☆ Sonnet 5.5'
 }
 
 @test "guard: sonnet-5 case does NOT swallow a hypothetical sonnet-50" {
@@ -376,11 +373,11 @@ setup() {
     assert_not_contains "$result" 'Fable 5.1'
 }
 
-@test "guard: fable-5-1 is current and never picks up the Fable 5 legacy flag" {
-    # The reverse direction of the *fable-5-1 / *fable-5 pair.
+@test "guard: fable-5-1 is matched by its own entry, never the major-only *fable-5" {
+    # The reverse direction of the *fable-5-1 / *fable-5 pair: *fable-5
+    # would render "Fable 5". Status-independent, like the opus guard.
     result=$(get_model_info 'claude-fable-5-1')
-    assert_contains "$result" 'Fable 5.1'
-    assert_not_contains "$result" 'legacy'
+    assert_contains "$result" '✦ Fable 5.1'
 }
 
 @test "guard: fable-5 case does NOT swallow a hypothetical fable-50" {
