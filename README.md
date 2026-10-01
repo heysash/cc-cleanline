@@ -97,6 +97,12 @@ the fallback row. `claude-mythos-5-1` is deliberately unmapped for the
 same reason — it is a Project-Glasswing-only model and falls through to
 the fallback too.
 
+Provider IDs are normalised as well: date suffixes — first-party
+`-YYYYMMDD` and Vertex AI `@YYYYMMDD` — are stripped before matching,
+and dateless Bedrock IDs such as `anthropic.claude-opus-5-5` hit the
+same end-anchored patterns. Bedrock InvokeModel IDs with a `-v1:0`
+suffix fall back to `model.display_name`.
+
 Lifecycle states follow Anthropic's
 [model deprecations](https://platform.claude.com/docs/en/about-claude/model-deprecations)
 page (last checked 2026-10-01).

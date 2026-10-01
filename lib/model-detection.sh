@@ -4,12 +4,13 @@
 # the formatted display string with icon, colour, 1M-context badge, effort badge,
 # and optional legacy marker.
 
-# Strip [1m] suffix and trailing -YYYYMMDD date suffix from a model ID.
+# Strip [1m] suffix and the trailing date suffix from a model ID — either
+# first-party -YYYYMMDD or Vertex AI @YYYYMMDD (claude-haiku-4-5@20251001).
 # Returns the normalised ID on stdout.
 strip_model_suffixes() {
     local id="$1"
     id="${id%\[1m\]}"
-    if [[ "$id" =~ ^(.*)-[0-9]{8}$ ]]; then
+    if [[ "$id" =~ ^(.*)[-@][0-9]{8}$ ]]; then
         id="${BASH_REMATCH[1]}"
     fi
     printf '%s' "$id"

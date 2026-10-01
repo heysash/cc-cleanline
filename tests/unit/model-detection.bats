@@ -24,6 +24,10 @@ setup() {
     [ "$(strip_model_suffixes 'claude-opus-4-7-20260301[1m]')" = 'claude-opus-4-7' ]
 }
 
+@test "strip_model_suffixes: removes Vertex AI @date suffix" {
+    [ "$(strip_model_suffixes 'claude-haiku-4-5@20251001')" = 'claude-haiku-4-5' ]
+}
+
 @test "strip_model_suffixes: leaves bare ID unchanged" {
     [ "$(strip_model_suffixes 'claude-sonnet-4-6')" = 'claude-sonnet-4-6' ]
 }
@@ -131,6 +135,12 @@ setup() {
 
 @test "get_model_info: Haiku 4.5 with date suffix → '✧ Haiku 4.5'" {
     result=$(get_model_info 'claude-haiku-4-5-20251001')
+    assert_contains "$result" '✧ Haiku 4.5'
+    assert_not_contains "$result" 'legacy'
+}
+
+@test "get_model_info: Haiku 4.5 Vertex AI ID (@date) → '✧ Haiku 4.5'" {
+    result=$(get_model_info 'claude-haiku-4-5@20251001')
     assert_contains "$result" '✧ Haiku 4.5'
     assert_not_contains "$result" 'legacy'
 }
