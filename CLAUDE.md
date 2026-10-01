@@ -24,7 +24,7 @@ Two design choices drive the rest:
 ## Commands
 
 ```bash
-./cc-cleanline.sh < tests/fixtures/opus-5-basic.json     # smoke test
+./cc-cleanline.sh < tests/fixtures/opus-5-5-basic.json   # smoke test
 bats --recursive tests/                                  # full bats suite
 bats tests/unit/model-detection.bats                     # one suite
 BATS_UPDATE_SNAPSHOTS=1 bats tests/integration/          # refresh snapshots
@@ -87,10 +87,11 @@ whole adaptive-layout logic.
 ## Key implementation notes
 
 - **Model-ID matching uses end-anchored case patterns** (`*opus-5`,
-  not `*opus-5*`) after stripping `[1m]` and date suffixes. This
-  prevents a future `opus-5-5` from collapsing into `opus-5`, and keeps
-  `fable-5-1` out of the `*fable-5` entry that sits right below it. See
-  `lib/model-detection.sh` and its regression guards in
+  not `*opus-5*`) after stripping `[1m]` and date suffixes. This keeps
+  `opus-5-5` and `fable-5-1` out of the legacy major-only entries
+  (`*opus-5`, `*fable-5`) and stops a hypothetical `opus-5-50` from
+  matching `*opus-5-5` — so entry order within a family never decides
+  the match. See `lib/model-detection.sh` and its regression guards in
   `tests/unit/model-detection.bats`.
 - **`[1m]` is a context-window suffix, not a separate model.** Strip
   it, set `is_1m`, render the `¹ᴹ` badge — but otherwise treat the

@@ -48,6 +48,21 @@ run_snapshot() {
     run_snapshot fable-5-1
 }
 
+@test "snapshot: opus-5-5-basic" {
+    require_jq
+    run_snapshot opus-5-5-basic
+}
+
+@test "snapshot: opus-5-5-1m-context" {
+    require_jq
+    run_snapshot opus-5-5-1m-context
+}
+
+@test "snapshot: sonnet-5-5" {
+    require_jq
+    run_snapshot sonnet-5-5
+}
+
 @test "snapshot: opus-5-basic" {
     require_jq
     run_snapshot opus-5-basic

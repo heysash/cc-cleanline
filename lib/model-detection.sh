@@ -58,23 +58,28 @@ get_model_info() {
     local display icon color
     local is_legacy=false
 
-    # Current models sit above their legacy siblings; the bare major-only
-    # patterns (*opus-5, *fable-5) must stay last in their family so a
-    # minor release such as fable-5-1 is matched by its own entry first.
+    # Patterns are end-anchored (*opus-5, not *opus-5*), so a major-only
+    # entry never matches a minor release such as opus-5-5 or fable-5-1;
+    # current entries are listed first in each family for readability only.
+    # Deprecated sonnet-4-5 renders in COLOR_DEPRECATED until it retires on
+    # 2026-11-30 — remove its entry then. haiku-4-5 stays current (no
+    # deprecation announced, no retirement before 2026-10-15).
     # Retired models (haiku-3-5 retired 2026-02-19, opus-4 / sonnet-4
     # retired 2026-06-15, opus-4-1 retired 2026-08-05) are removed
     # entirely and fall through to the display_name fallback.
     case "$stripped_id" in
         *fable-5-1)  display="Fable 5.1";  icon="✦"; color="$COLOR_FABLE" ;;
         *fable-5)    display="Fable 5";    icon="✦"; color="$COLOR_FABLE_LEGACY";  is_legacy=true ;;
-        *opus-5)     display="Opus 5";     icon="★"; color="$COLOR_OPUS" ;;
+        *opus-5-5)   display="Opus 5.5";   icon="★"; color="$COLOR_OPUS" ;;
+        *opus-5)     display="Opus 5";     icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
         *opus-4-8)   display="Opus 4.8";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
         *opus-4-7)   display="Opus 4.7";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
         *opus-4-6)   display="Opus 4.6";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
         *opus-4-5)   display="Opus 4.5";   icon="★"; color="$COLOR_OPUS_LEGACY";  is_legacy=true ;;
-        *sonnet-5)   display="Sonnet 5";   icon="☆"; color="$COLOR_SONNET" ;;
+        *sonnet-5-5) display="Sonnet 5.5"; icon="☆"; color="$COLOR_SONNET" ;;
+        *sonnet-5)   display="Sonnet 5";   icon="☆"; color="$COLOR_SONNET_LEGACY"; is_legacy=true ;;
         *sonnet-4-6) display="Sonnet 4.6"; icon="☆"; color="$COLOR_SONNET_LEGACY"; is_legacy=true ;;
-        *sonnet-4-5) display="Sonnet 4.5"; icon="☆"; color="$COLOR_SONNET_LEGACY"; is_legacy=true ;;
+        *sonnet-4-5) display="Sonnet 4.5"; icon="☆"; color="$COLOR_DEPRECATED";    is_legacy=true ;;
         *haiku-4-5)  display="Haiku 4.5";  icon="✧"; color="$COLOR_HAIKU" ;;
         *)
             display="${display_name:-${stripped_id}}"

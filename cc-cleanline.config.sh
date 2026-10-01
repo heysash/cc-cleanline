@@ -28,6 +28,7 @@ COLOR_SONNET='\033[38;5;130m'           # Saddlebrown    — Sonnet (current)
 COLOR_SONNET_LEGACY='\033[38;5;101m'    # Dimmed         — Sonnet (legacy)
 COLOR_HAIKU='\033[38;5;117m'            # Sky-blue       — Haiku (current)
 COLOR_HAIKU_LEGACY='\033[38;5;110m'     # Dimmed         — Haiku (legacy)
+COLOR_DEPRECATED='\033[38;5;240m'       # Dark grey      — Deprecated (retirement announced)
 COLOR_DEFAULT_MODEL='\033[38;5;248m'    # Light grey     — Unknown model
 
 # UI element colours

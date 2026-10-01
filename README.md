@@ -19,8 +19,9 @@ adaptive Worktree / Output-Style / Vim / PR rows — without visual noise.
 Rewritten in 2026 to consume Claude Code's native statusline JSON fields
 directly (`context_window.*`, `cost.*`, `rate_limits.*`, `worktree.*`,
 `output_style.*`, `vim.*`, `pr.*`, `effort.level`) and to recognise the
-current model line-up: **Fable 5.1**, **Opus 5** (incl. `[1m]` context),
-**Sonnet 5**, **Haiku 4.5**, plus legacy markers for everything older.
+current model line-up: **Fable 5.1**, **Opus 5.5** (incl. `[1m]` context),
+**Sonnet 5.5**, **Haiku 4.5**, plus legacy markers for everything older
+and a dark-grey tint for deprecated models.
 
 ## What the status line looks like
 
@@ -29,7 +30,7 @@ underlying data is present.
 
 ```
 ● git branch main (+15/-3) ▶ ./cc-cleanline
-★ Opus 5 ¹ᴹ ★★★★ 142.3k · 14.2% (1M) ⏱ Reset 2h 43m
+★ Opus 5.5 ¹ᴹ ★★★★ 142.3k · 14.2% (1M) ⏱ Reset 2h 43m
   ● 5h Limit: Medium · $1.23 session
 🌿 worktree: curious-feature ▸ branch: claude/curious-feature
 ⚙ style: Explanatory · vim: INSERT · PR #42 ⚠ changes_requested
@@ -71,24 +72,34 @@ Restart Claude Code (or `/exit`) and the status line will appear.
 | ------------------------------ | ------------- | ------- | -------------------------------------- |
 | `claude-fable-5-1`             | `✦ Fable 5.1` |         | current top tier; lavender             |
 | `claude-fable-5`               | `✦ Fable 5`   | legacy  | dimmed lavender                        |
-| `claude-opus-5`                | `★ Opus 5`    |         | current                                |
-| `claude-opus-5[1m]`            | `★ Opus 5 ¹ᴹ` | `¹ᴹ`    | 1M context window                      |
-| `claude-opus-4-8`              | `★ Opus 4.8`  | legacy  | dimmed colour                          |
+| `claude-opus-5-5`              | `★ Opus 5.5`  |         | current                                |
+| `claude-opus-5-5[1m]`          | `★ Opus 5.5 ¹ᴹ` | `¹ᴹ`  | 1M context window                      |
+| `claude-opus-5`                | `★ Opus 5`    | legacy  | dimmed colour                          |
+| `claude-opus-4-8`              | `★ Opus 4.8`  | legacy  |                                        |
 | `claude-opus-4-7`              | `★ Opus 4.7`  | legacy  |                                        |
 | `claude-opus-4-6`              | `★ Opus 4.6`  | legacy  |                                        |
 | `claude-opus-4-5-…`            | `★ Opus 4.5`  | legacy  | date-suffixed IDs auto-normalised      |
-| `claude-sonnet-5`              | `☆ Sonnet 5`  |         | current                                |
+| `claude-sonnet-5-5`            | `☆ Sonnet 5.5`|         | current                                |
+| `claude-sonnet-5`              | `☆ Sonnet 5`  | legacy  | dimmed colour                          |
 | `claude-sonnet-4-6`            | `☆ Sonnet 4.6`| legacy  |                                        |
-| `claude-sonnet-4-5-…`          | `☆ Sonnet 4.5`| legacy  |                                        |
-| `claude-haiku-4-5-…`           | `✧ Haiku 4.5` |         | current; sky-blue                      |
+| `claude-sonnet-4-5-…`          | `☆ Sonnet 4.5`| legacy  | deprecated: dark grey; retires 2026-11-30 |
+| `claude-haiku-4-5-…`           | `✧ Haiku 4.5` |         | current; sky-blue; no retirement before 2026-10-15 |
 | anything else                  | `● <name>`    |         | falls back to `model.display_name`     |
 
 The `¹ᴹ` badge is model-agnostic: any `…[1m]` ID renders it, current or
-legacy. Models Anthropic has retired entirely (Haiku 3.5, retired
-2026-02-19; Opus 4 and Sonnet 4, retired 2026-06-15; Opus 4.1, retired
-2026-08-05) are dropped from the table and render via the fallback row.
-`claude-mythos-5-1` is deliberately unmapped for the same reason — it is
-a Project-Glasswing-only model and falls through to the fallback too.
+legacy. Deprecated models — still served, but with an announced
+retirement date — keep their row and the `⚠legacy` marker but render in
+dark grey (`COLOR_DEPRECATED`) until they retire; currently that is
+Sonnet 4.5, retiring 2026-11-30. Models Anthropic has retired entirely
+(Haiku 3.5, retired 2026-02-19; Opus 4 and Sonnet 4, retired 2026-06-15;
+Opus 4.1, retired 2026-08-05) are dropped from the table and render via
+the fallback row. `claude-mythos-5-1` is deliberately unmapped for the
+same reason — it is a Project-Glasswing-only model and falls through to
+the fallback too.
+
+Lifecycle states follow Anthropic's
+[model deprecations](https://platform.claude.com/docs/en/about-claude/model-deprecations)
+page (last checked 2026-10-01).
 
 The effort badge appended to the model name is a 4-star meter
 (constant width, filled stars = level — scannable without counting):
@@ -117,7 +128,7 @@ Toggles most users care about:
 | `SHOW_TOKEN_PERCENT_TOTAL`     | `true`  | `25.0%` in the context segment                      |
 | `SHOW_EFFORT_BADGE`            | `true`  | Append the 4-star effort meter (`☆☆☆☆`…`★★★★`)      |
 | `SHOW_1M_BADGE`                | `true`  | Append `¹ᴹ` for `[1m]` variants                     |
-| `SHOW_LEGACY_MARKER`           | `true`  | Append `⚠legacy` for legacy models                  |
+| `SHOW_LEGACY_MARKER`           | `true`  | Append `⚠legacy` for legacy and deprecated models   |
 | `SHOW_WORKTREE_LINE`           | `true`  | Render line 4 when in a Claude Code worktree        |
 | `SHOW_EXTRAS_LINE`             | `true`  | Render line 5 (style / vim / PR)                    |
 | `SHOW_VERSION`                 | `false` | Append `v2.1.150` to line 5                         |

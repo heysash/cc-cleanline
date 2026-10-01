@@ -103,21 +103,29 @@ setup() {
     assert_not_contains "$result" 'legacy'
 }
 
-@test "get_model_info: Opus 5 → '★ Opus 5|<color>'" {
-    result=$(get_model_info 'claude-opus-5')
-    assert_contains "$result" '★ Opus 5'
+@test "get_model_info: Opus 5.5 → '★ Opus 5.5|<color>' (current Opus)" {
+    result=$(get_model_info 'claude-opus-5-5')
+    assert_contains "$result" '★ Opus 5.5'
     assert_not_contains "$result" 'legacy'
 }
 
-@test "get_model_info: Opus 5 with [1m] → adds ¹ᴹ badge" {
-    result=$(get_model_info 'claude-opus-5[1m]')
-    assert_contains "$result" '★ Opus 5 ¹ᴹ'
+@test "get_model_info: Opus 5.5 with [1m] → adds ¹ᴹ badge" {
+    result=$(get_model_info 'claude-opus-5-5[1m]')
+    assert_contains "$result" '★ Opus 5.5 ¹ᴹ'
     assert_not_contains "$result" 'legacy'
 }
 
-@test "get_model_info: Sonnet 5 → '☆ Sonnet 5'" {
-    result=$(get_model_info 'claude-sonnet-5')
-    assert_contains "$result" '☆ Sonnet 5'
+@test "get_model_info: Opus 5.5 Bedrock ID → provider prefix ignored by end-anchoring" {
+    # Bedrock's Messages-API IDs are the dateless first-party ID with an
+    # 'anthropic.' prefix; the leading * of the case pattern absorbs it.
+    result=$(get_model_info 'anthropic.claude-opus-5-5')
+    assert_contains "$result" '★ Opus 5.5'
+    assert_not_contains "$result" 'legacy'
+}
+
+@test "get_model_info: Sonnet 5.5 → '☆ Sonnet 5.5' (current Sonnet)" {
+    result=$(get_model_info 'claude-sonnet-5-5')
+    assert_contains "$result" '☆ Sonnet 5.5'
     assert_not_contains "$result" 'legacy'
 }
 
@@ -132,6 +140,18 @@ setup() {
 @test "get_model_info: Fable 5 → legacy marker (demoted by Fable 5.1)" {
     result=$(get_model_info 'claude-fable-5')
     assert_contains "$result" '✦ Fable 5'
+    assert_contains "$result" 'legacy'
+}
+
+@test "get_model_info: Opus 5 → legacy marker (demoted by Opus 5.5)" {
+    result=$(get_model_info 'claude-opus-5')
+    assert_contains "$result" '★ Opus 5'
+    assert_contains "$result" 'legacy'
+}
+
+@test "get_model_info: Opus 5 with [1m] → keeps ¹ᴹ badge alongside legacy" {
+    result=$(get_model_info 'claude-opus-5[1m]')
+    assert_contains "$result" '★ Opus 5 ¹ᴹ'
     assert_contains "$result" 'legacy'
 }
 
@@ -171,16 +191,31 @@ setup() {
     assert_contains "$result" 'legacy'
 }
 
+@test "get_model_info: Sonnet 5 → legacy marker (demoted by Sonnet 5.5)" {
+    result=$(get_model_info 'claude-sonnet-5')
+    assert_contains "$result" '☆ Sonnet 5'
+    assert_contains "$result" 'legacy'
+}
+
 @test "get_model_info: Sonnet 4.6 → legacy marker (demoted by Sonnet 5)" {
     result=$(get_model_info 'claude-sonnet-4-6')
     assert_contains "$result" 'Sonnet 4.6'
     assert_contains "$result" 'legacy'
 }
 
-@test "get_model_info: Sonnet 4.5 → legacy marker" {
+# --- get_model_info: deprecated models ----------------------------------------
+
+@test "get_model_info: Sonnet 4.5 → deprecated colour + legacy marker" {
+    # Deprecated 2026-09-30, retires 2026-11-30: still served, so the entry
+    # stays, but it renders in COLOR_DEPRECATED instead of the Sonnet legacy
+    # colour. An empty COLOR_DEPRECATED would collapse "|${COLOR_DEPRECATED}"
+    # to "|" and match every result — hence the explicit non-empty check.
+    [ -n "$COLOR_DEPRECATED" ]
     result=$(get_model_info 'claude-sonnet-4-5-20250929')
-    assert_contains "$result" 'Sonnet 4.5'
+    assert_contains "$result" '☆ Sonnet 4.5'
     assert_contains "$result" 'legacy'
+    assert_contains "$result" "|${COLOR_DEPRECATED}"
+    assert_not_contains "$result" "|${COLOR_SONNET_LEGACY}"
 }
 
 # --- get_model_info: retired / fallback ---------------------------------------
@@ -237,18 +272,18 @@ setup() {
 # --- get_model_info: effort badges --------------------------------------------
 
 @test "get_model_info: appends effort star meter when level given" {
-    result=$(get_model_info 'claude-opus-5' 'Opus' 'max')
+    result=$(get_model_info 'claude-opus-5-5' 'Opus' 'max')
     assert_contains "$result" '★★★★'
 }
 
 @test "get_model_info: effort 'high' renders as '★★☆☆'" {
-    result=$(get_model_info 'claude-opus-5' 'Opus' 'high')
-    assert_contains "$result" 'Opus 5 ★★☆☆'
+    result=$(get_model_info 'claude-opus-5-5' 'Opus' 'high')
+    assert_contains "$result" 'Opus 5.5 ★★☆☆'
 }
 
 @test "get_model_info: effort badge skipped when SHOW_EFFORT_BADGE=false" {
     SHOW_EFFORT_BADGE=false
-    result=$(get_model_info 'claude-opus-5' 'Opus' 'max')
+    result=$(get_model_info 'claude-opus-5-5' 'Opus' 'max')
     # The Opus icon is also '★', so check for the badge-specific 4-star run.
     assert_not_contains "$result" '★★'
 }
@@ -273,16 +308,23 @@ setup() {
     assert_not_contains "$result" 'Opus 4.8'
 }
 
-@test "guard: opus-5 case does NOT swallow a hypothetical opus-5-5" {
-    # *opus-5 is a major-only pattern; a future opus-5-5 minor must get its
-    # own entry instead of collapsing into the major.
+@test "guard: opus-5-5 is matched by its own entry, never the legacy *opus-5" {
+    # *opus-5 is a major-only pattern; end-anchoring keeps the opus-5-5
+    # minor out of it, so Opus 5.5 renders current in the current colour.
     result=$(get_model_info 'claude-opus-5-5')
-    assert_not_contains "$result" 'Opus 5'
+    assert_contains "$result" 'Opus 5.5'
+    assert_not_contains "$result" 'legacy'
+    assert_contains "$result" "|${COLOR_OPUS}"
 }
 
 @test "guard: opus-5 case does NOT swallow a hypothetical opus-50" {
     result=$(get_model_info 'claude-opus-50')
     assert_not_contains "$result" 'Opus 5'
+}
+
+@test "guard: opus-5-5 case does NOT swallow a hypothetical opus-5-50" {
+    result=$(get_model_info 'claude-opus-5-50')
+    assert_not_contains "$result" 'Opus 5.5'
 }
 
 @test "guard: opus-4-5 stays Opus 4.5 and never collapses into Opus 5" {
@@ -292,15 +334,30 @@ setup() {
     assert_not_contains "$result" 'Opus 5'
 }
 
-@test "guard: sonnet-5 case does NOT swallow a hypothetical sonnet-5-5" {
-    # *sonnet-5 is a major-only pattern; a future sonnet-5-5 minor must
-    # get its own entry instead of collapsing into the major.
+@test "guard: sonnet-5-5 is matched by its own entry, never the legacy *sonnet-5" {
+    # *sonnet-5 is a major-only pattern; end-anchoring keeps the sonnet-5-5
+    # minor out of it, so Sonnet 5.5 renders current in the current colour.
     result=$(get_model_info 'claude-sonnet-5-5')
-    assert_not_contains "$result" 'Sonnet 5'
+    assert_contains "$result" 'Sonnet 5.5'
+    assert_not_contains "$result" 'legacy'
+    assert_contains "$result" "|${COLOR_SONNET}"
 }
 
 @test "guard: sonnet-5 case does NOT swallow a hypothetical sonnet-50" {
     result=$(get_model_info 'claude-sonnet-50')
+    assert_not_contains "$result" 'Sonnet 5'
+}
+
+@test "guard: sonnet-5-5 case does NOT swallow a hypothetical sonnet-5-50" {
+    result=$(get_model_info 'claude-sonnet-5-50')
+    assert_not_contains "$result" 'Sonnet 5.5'
+}
+
+@test "guard: sonnet-4-5 stays Sonnet 4.5 and never collapses into Sonnet 5" {
+    # Mirror of the opus-4-5 guard: the deprecated 4-5 and the current 5-5
+    # IDs differ by a single digit.
+    result=$(get_model_info 'claude-sonnet-4-5')
+    assert_contains "$result" 'Sonnet 4.5'
     assert_not_contains "$result" 'Sonnet 5'
 }
 
