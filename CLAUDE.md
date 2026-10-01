@@ -28,7 +28,7 @@ Two design choices drive the rest:
 bats --recursive tests/                                  # full bats suite
 bats tests/unit/model-detection.bats                     # one suite
 BATS_UPDATE_SNAPSHOTS=1 bats tests/integration/          # refresh snapshots
-shellcheck **/*.sh                                       # static analysis
+shellcheck $(git ls-files '*.sh' '*.bash')               # static analysis
 ./happy-mode-tools.sh test                               # happy-mode bats wrapper
 ./happy-mode-tools.sh enable | disable                   # toggle easter eggs
 ```

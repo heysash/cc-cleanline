@@ -169,7 +169,7 @@ brew install bats-core shellcheck jq      # macOS
 sudo apt install bats shellcheck jq       # Debian/Ubuntu
 
 bats --recursive tests/                   # full suite
-shellcheck **/*.sh                        # static analysis
+shellcheck $(git ls-files '*.sh' '*.bash')  # static analysis
 ```
 
 Snapshot updates after intentional formatting changes:
@@ -178,8 +178,9 @@ Snapshot updates after intentional formatting changes:
 BATS_UPDATE_SNAPSHOTS=1 bats tests/integration/
 ```
 
-The CI workflow (`.github/workflows/ci.yml`) runs shellcheck and bats on
-both Ubuntu and macOS for every push and PR.
+The CI workflow (`.github/workflows/ci.yml`) runs shellcheck on Ubuntu
+and the bats suite on both Ubuntu and macOS for every push to `main`
+and every PR.
 
 ## Architecture
 
