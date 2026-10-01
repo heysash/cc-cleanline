@@ -8,7 +8,7 @@ setup() {
     # Isolate cache to a per-test directory so we never touch the real one.
     XDG_CACHE_HOME="$(mktemp -d)"
     export XDG_CACHE_HOME
-    # Pin "now" to 2026-05-26 14:30:00 UTC for deterministic cooldown math.
+    # Pin "now" to 2025-05-26 14:30:00 UTC for deterministic cooldown math.
     export CC_CLEANLINE_MOCK_NOW=1748269800
     # shellcheck disable=SC1090
     source "${REPO_ROOT}/cc-cleanline.config.sh"

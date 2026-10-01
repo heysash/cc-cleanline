@@ -133,7 +133,7 @@ Adding new content does **not** require code changes:
 ## Test-fixture conventions
 
 Fixtures in `tests/fixtures/` use `MOCK_NOW = 1748269800`
-(2026-05-26 14:30:00 UTC) as their "now"; `resets_at` values are
+(2025-05-26 14:30:00 UTC) as their "now"; `resets_at` values are
 chosen relative to that timestamp so countdown tests are stable.
 
 End-to-end snapshot tests run the script in an empty tmpdir (no git

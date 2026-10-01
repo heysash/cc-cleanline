@@ -6,7 +6,7 @@ load '../helpers.bash'
 
 setup() {
     source_module "lib/usage-tracking.sh"
-    # Pin "now" to 2026-05-26 14:30:00 UTC (= 1748269800).
+    # Pin "now" to 2025-05-26 14:30:00 UTC (= 1748269800).
     # All fixture resets_at values are anchored to this baseline.
     export CC_CLEANLINE_MOCK_NOW=1748269800
 }
